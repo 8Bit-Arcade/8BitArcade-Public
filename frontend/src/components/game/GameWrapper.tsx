@@ -119,6 +119,15 @@ export default function GameWrapper({
         // Load the scene class dynamically
         const GameScene = await sceneLoader();
 
+        // Create scene instance with callbacks
+        const sceneInstance = new GameScene(
+          handleScoreUpdate,
+          handleGameOver,
+          getDirection,
+          getAction,
+          seed || Math.floor(Math.random() * 2147483647)
+        );
+
         const gameConfig: Phaser.Types.Core.GameConfig = {
           type: Phaser.AUTO,
           parent: containerRef.current,
@@ -139,17 +148,12 @@ export default function GameWrapper({
           audio: {
             disableWebAudio: !soundEnabled,
           },
-          scene: new GameScene(
-            handleScoreUpdate,
-            handleGameOver,
-            getDirection,
-            getAction,
-            seed || Math.floor(Math.random() * 2147483647)
-          ),
-          ...config,
         };
 
         gameRef.current = new Phaser.Game(gameConfig);
+
+        // Add and start the scene after game is created
+        gameRef.current.scene.add('main', sceneInstance, true);
       }
     },
     [
@@ -181,10 +185,10 @@ export default function GameWrapper({
   const togglePause = useCallback(() => {
     if (isPaused) {
       resumeGame();
-      gameRef.current?.scene.scenes[0]?.scene.resume();
+      gameRef.current?.scene.resume('main');
     } else {
       pauseGame();
-      gameRef.current?.scene.scenes[0]?.scene.pause();
+      gameRef.current?.scene.pause('main');
     }
   }, [isPaused, pauseGame, resumeGame]);
 
