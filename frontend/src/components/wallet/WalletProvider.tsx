@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useEffect, useRef } from 'react';
+import { useAccount } from 'wagmi';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 
@@ -11,16 +11,19 @@ export default function WalletProvider({
   children: React.ReactNode;
 }) {
   const { address, isConnected, isConnecting } = useAccount();
-  const { disconnect } = useDisconnect();
   const {
     setConnected,
     setAddress,
-    username,
+    getUsername,
     setIsNewUser,
     setLoading,
     reset: resetAuth,
   } = useAuthStore();
   const { setUsernameModalOpen, addToast } = useUIStore();
+
+  // Track if we've already shown the modal for this session
+  const hasShownModal = useRef(false);
+  const prevAddress = useRef<string | null>(null);
 
   // Handle connection state changes
   useEffect(() => {
@@ -30,51 +33,46 @@ export default function WalletProvider({
     if (isConnected && address) {
       setAddress(address);
 
-      // Check if this is a new user (no username set)
-      // In production, this would check Firebase
-      if (!username) {
+      // Only check for username when address changes or first connection
+      if (prevAddress.current !== address) {
+        prevAddress.current = address;
+        hasShownModal.current = false;
+      }
+
+      const existingUsername = getUsername(address);
+
+      if (!existingUsername && !hasShownModal.current) {
         setIsNewUser(true);
+        hasShownModal.current = true;
         // Delay modal to allow wallet modal to close
         setTimeout(() => {
           setUsernameModalOpen(true);
         }, 500);
-      } else {
+      } else if (existingUsername && !hasShownModal.current) {
+        hasShownModal.current = true;
         addToast({
           type: 'success',
-          message: `Welcome back, ${username}!`,
+          message: `Welcome back, ${existingUsername}!`,
         });
       }
     } else if (!isConnected) {
+      prevAddress.current = null;
+      hasShownModal.current = false;
       resetAuth();
     }
   }, [
     isConnected,
     isConnecting,
     address,
-    username,
     setConnected,
     setAddress,
+    getUsername,
     setIsNewUser,
     setLoading,
     setUsernameModalOpen,
     addToast,
     resetAuth,
   ]);
-
-  // Handle network errors
-  useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      if (error.message?.includes('wallet') || error.message?.includes('Web3')) {
-        addToast({
-          type: 'error',
-          message: 'Wallet connection error. Please try again.',
-        });
-      }
-    };
-
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, [addToast]);
 
   return <>{children}</>;
 }

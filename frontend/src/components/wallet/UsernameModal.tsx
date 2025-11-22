@@ -12,7 +12,7 @@ import { isValidUsername } from '@/lib/utils';
 export default function UsernameModal() {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const { setUsername } = useAuthStore();
+  const { setUsername, setIsNewUser } = useAuthStore();
   const { isUsernameModalOpen, setUsernameModalOpen, addToast } = useUIStore();
 
   const [inputValue, setInputValue] = useState('');
@@ -20,6 +20,11 @@ export default function UsernameModal() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!address) {
+      setError('No wallet connected');
+      return;
+    }
+
     // Validate username
     if (!inputValue.trim()) {
       setError('Username is required');
@@ -40,10 +45,11 @@ export default function UsernameModal() {
 
       await signMessageAsync({ message });
 
-      // In production, this would call Firebase Function to verify and save
-      // For now, just save locally
-      setUsername(inputValue);
+      // Save username linked to wallet address
+      setUsername(address, inputValue);
+      setIsNewUser(false);
       setUsernameModalOpen(false);
+      setInputValue('');
       addToast({
         type: 'success',
         message: `Welcome, ${inputValue}!`,
@@ -57,7 +63,9 @@ export default function UsernameModal() {
   };
 
   const handleSkip = () => {
+    setIsNewUser(false);
     setUsernameModalOpen(false);
+    setInputValue('');
     addToast({
       type: 'info',
       message: 'You can set a username later in your profile',

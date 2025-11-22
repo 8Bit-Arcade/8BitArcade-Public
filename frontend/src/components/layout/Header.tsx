@@ -11,7 +11,8 @@ import { truncateAddress } from '@/lib/utils';
 export default function Header() {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
-  const { username } = useAuthStore();
+  const { getUsername } = useAuthStore();
+  const username = address ? getUsername(address) : null;
 
   const navLinks = [
     { href: '/', label: 'Games' },

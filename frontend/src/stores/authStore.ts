@@ -1,48 +1,83 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+interface UserData {
+  username: string;
+  createdAt: number;
+}
+
 interface AuthState {
   // State
   isConnected: boolean;
   address: string | null;
-  username: string | null;
   isNewUser: boolean;
   isLoading: boolean;
+
+  // Persisted user data by wallet address
+  users: Record<string, UserData>;
 
   // Actions
   setConnected: (connected: boolean) => void;
   setAddress: (address: string | null) => void;
-  setUsername: (username: string | null) => void;
   setIsNewUser: (isNew: boolean) => void;
   setLoading: (loading: boolean) => void;
+  setUsername: (address: string, username: string) => void;
+  getUsername: (address: string | null) => string | null;
   reset: () => void;
 }
 
-const initialState = {
-  isConnected: false,
-  address: null,
-  username: null,
-  isNewUser: false,
-  isLoading: false,
-};
-
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
-      ...initialState,
+    (set, get) => ({
+      isConnected: false,
+      address: null,
+      isNewUser: false,
+      isLoading: false,
+      users: {},
 
       setConnected: (connected) => set({ isConnected: connected }),
       setAddress: (address) => set({ address }),
-      setUsername: (username) => set({ username }),
       setIsNewUser: (isNew) => set({ isNewUser: isNew }),
       setLoading: (loading) => set({ isLoading: loading }),
-      reset: () => set(initialState),
+
+      setUsername: (address, username) => {
+        const normalizedAddress = address.toLowerCase();
+        set((state) => ({
+          users: {
+            ...state.users,
+            [normalizedAddress]: {
+              username,
+              createdAt: Date.now(),
+            },
+          },
+        }));
+      },
+
+      getUsername: (address) => {
+        if (!address) return null;
+        const normalizedAddress = address.toLowerCase();
+        return get().users[normalizedAddress]?.username || null;
+      },
+
+      reset: () => set({
+        isConnected: false,
+        address: null,
+        isNewUser: false,
+        isLoading: false
+      }),
     }),
     {
       name: '8bit-arcade-auth',
       partialize: (state) => ({
-        username: state.username,
+        users: state.users,
       }),
     }
   )
 );
+
+// Helper hook to get current user's username
+export const useUsername = () => {
+  const { address, users } = useAuthStore();
+  if (!address) return null;
+  return users[address.toLowerCase()]?.username || null;
+};

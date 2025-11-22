@@ -2,22 +2,24 @@
 
 import dynamic from 'next/dynamic';
 
+// Dynamically import GameWrapper to avoid SSR issues with Phaser
 const GameWrapper = dynamic(
   () => import('@/components/game/GameWrapper'),
   { ssr: false }
 );
 
-const BrickBreakerScene = dynamic(
-  () => import('@/games/brick-breaker/BrickBreakerScene').then((mod) => mod.default),
-  { ssr: false }
-);
+// Scene loader function - loads the scene class on demand
+const loadBrickBreakerScene = async () => {
+  const module = await import('@/games/brick-breaker/BrickBreakerScene');
+  return module.default;
+};
 
 export default function BrickBreakerPage() {
   return (
     <GameWrapper
       gameId="brick-breaker"
       gameName="BRICK BREAKER"
-      GameScene={BrickBreakerScene as any}
+      sceneLoader={loadBrickBreakerScene}
       config={{
         width: 800,
         height: 600,

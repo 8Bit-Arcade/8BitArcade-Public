@@ -2,22 +2,24 @@
 
 import dynamic from 'next/dynamic';
 
+// Dynamically import GameWrapper to avoid SSR issues with Phaser
 const GameWrapper = dynamic(
   () => import('@/components/game/GameWrapper'),
   { ssr: false }
 );
 
-const AlienAssaultScene = dynamic(
-  () => import('@/games/alien-assault/AlienAssaultScene').then((mod) => mod.default),
-  { ssr: false }
-);
+// Scene loader function - loads the scene class on demand
+const loadAlienAssaultScene = async () => {
+  const module = await import('@/games/alien-assault/AlienAssaultScene');
+  return module.default;
+};
 
 export default function AlienAssaultPage() {
   return (
     <GameWrapper
       gameId="alien-assault"
       gameName="ALIEN ASSAULT"
-      GameScene={AlienAssaultScene as any}
+      sceneLoader={loadAlienAssaultScene}
       config={{
         width: 800,
         height: 600,

@@ -11,16 +11,18 @@ import { useAudioStore } from '@/stores/audioStore';
 import { formatNumber, isTouchDevice } from '@/lib/utils';
 import type { GameMode } from '@/types';
 
+type SceneConstructor = new (
+  onScoreUpdate: (score: number) => void,
+  onGameOver: (finalScore: number) => void,
+  getDirection: () => { up: boolean; down: boolean; left: boolean; right: boolean },
+  getAction: () => boolean,
+  seed: number
+) => Phaser.Scene;
+
 interface GameWrapperProps {
   gameId: string;
   gameName: string;
-  GameScene: new (
-    onScoreUpdate: (score: number) => void,
-    onGameOver: (finalScore: number) => void,
-    getDirection: () => { up: boolean; down: boolean; left: boolean; right: boolean },
-    getAction: () => boolean,
-    seed: number
-  ) => Phaser.Scene;
+  sceneLoader: () => Promise<SceneConstructor>;
   config?: Partial<Phaser.Types.Core.GameConfig>;
   showDPad?: boolean;
   showAction?: boolean;
@@ -30,7 +32,7 @@ interface GameWrapperProps {
 export default function GameWrapper({
   gameId,
   gameName,
-  GameScene,
+  sceneLoader,
   config = {},
   showDPad = true,
   showAction = true,
@@ -103,7 +105,7 @@ export default function GameWrapper({
 
   // Start game with selected mode
   const handleStartGame = useCallback(
-    (mode: GameMode) => {
+    async (mode: GameMode) => {
       if (mode !== 'free' && !isConnected) {
         alert('Please connect your wallet to play ranked or tournament mode');
         return;
@@ -114,6 +116,9 @@ export default function GameWrapper({
 
       // Initialize Phaser game
       if (containerRef.current && !gameRef.current) {
+        // Load the scene class dynamically
+        const GameScene = await sceneLoader();
+
         const gameConfig: Phaser.Types.Core.GameConfig = {
           type: Phaser.AUTO,
           parent: containerRef.current,
@@ -154,7 +159,7 @@ export default function GameWrapper({
       seed,
       config,
       soundEnabled,
-      GameScene,
+      sceneLoader,
       handleScoreUpdate,
       handleGameOver,
       getDirection,
