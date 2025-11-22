@@ -148,16 +148,11 @@ export default function GameWrapper({
           audio: {
             disableWebAudio: !soundEnabled,
           },
+          scene: sceneInstance,
         };
 
+        console.log('Creating Phaser game with scene:', sceneInstance);
         gameRef.current = new Phaser.Game(gameConfig);
-
-        // Wait for game to be ready, then add and start the scene
-        gameRef.current.events.once('ready', () => {
-          console.log('Phaser game ready, adding scene...');
-          gameRef.current?.scene.add('main', sceneInstance, true);
-          console.log('Scene added and started');
-        });
       }
     },
     [
@@ -187,12 +182,15 @@ export default function GameWrapper({
 
   // Handle pause/resume
   const togglePause = useCallback(() => {
+    const activeScene = gameRef.current?.scene.scenes[0];
+    if (!activeScene) return;
+
     if (isPaused) {
       resumeGame();
-      gameRef.current?.scene.resume('main');
+      activeScene.scene.resume();
     } else {
       pauseGame();
-      gameRef.current?.scene.pause('main');
+      activeScene.scene.pause();
     }
   }, [isPaused, pauseGame, resumeGame]);
 
