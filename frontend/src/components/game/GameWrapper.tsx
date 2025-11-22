@@ -152,8 +152,12 @@ export default function GameWrapper({
 
         gameRef.current = new Phaser.Game(gameConfig);
 
-        // Add and start the scene after game is created
-        gameRef.current.scene.add('main', sceneInstance, true);
+        // Wait for game to be ready, then add and start the scene
+        gameRef.current.events.once('ready', () => {
+          console.log('Phaser game ready, adding scene...');
+          gameRef.current?.scene.add('main', sceneInstance, true);
+          console.log('Scene added and started');
+        });
       }
     },
     [
