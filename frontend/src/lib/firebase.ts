@@ -1,7 +1,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getFunctions, Functions, httpsCallable } from 'firebase/functions';
+import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, Functions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 
 // Firebase configuration - replace with your actual config
 const firebaseConfig = {
@@ -12,6 +12,9 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
 };
+
+// Check if we should use emulators
+const useEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
 
 // Initialize Firebase
 let app: FirebaseApp;
@@ -28,6 +31,15 @@ if (typeof window !== 'undefined') {
   auth = getAuth(app);
   db = getFirestore(app);
   functions = getFunctions(app);
+
+  // Connect to emulators in development
+  if (useEmulators) {
+    console.log('🔧 Connecting to Firebase Emulators...');
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+    console.log('✅ Connected to Firebase Emulators');
+  }
 }
 
 export { app, auth, db, functions, httpsCallable };
