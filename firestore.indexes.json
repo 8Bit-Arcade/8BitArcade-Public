@@ -1,16 +1,6 @@
 {
   "indexes": [
     {
-      "collectionGroup": "scores",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "totalScore",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
