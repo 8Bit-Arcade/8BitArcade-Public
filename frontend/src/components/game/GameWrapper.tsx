@@ -55,6 +55,7 @@ export default function GameWrapper({
     setScore,
     pauseGame,
     resumeGame,
+    reset: resetGameState,
   } = useGameStore();
 
   const { soundEnabled } = useAudioStore();
@@ -66,6 +67,13 @@ export default function GameWrapper({
   // Input state refs (for real-time access in game loop)
   const directionRef = useRef({ up: false, down: false, left: false, right: false });
   const actionRef = useRef(false);
+
+  // Reset game state when component mounts or gameId changes
+  useEffect(() => {
+    resetGameState();
+    setShowModeSelect(true);
+    setSelectedMode(null);
+  }, [gameId, resetGameState]);
 
   // Load high score from localStorage
   useEffect(() => {
