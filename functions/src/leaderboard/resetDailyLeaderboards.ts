@@ -1,5 +1,6 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { collections, Timestamp } from '../config/firebase';
+import { Timestamp } from 'firebase-admin/firestore';
+import { collections } from '../config/firebase';
 import { GAME_CONFIGS, getRewardForRank } from '../config/games';
 
 /**

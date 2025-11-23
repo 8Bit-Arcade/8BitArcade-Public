@@ -1,7 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { collections } from '../config/firebase';
 import { GAME_CONFIGS } from '../config/games';
-import { LeaderboardEntry } from '../types';
 
 interface GetLeaderboardRequest {
   gameId?: string; // Omit for global
@@ -9,8 +8,15 @@ interface GetLeaderboardRequest {
   limit?: number;
 }
 
+interface LeaderboardEntryResponse {
+  odedId: string;
+  username: string;
+  score: number;
+  timestamp: number; // Milliseconds
+}
+
 interface GetLeaderboardResponse {
-  entries: LeaderboardEntry[];
+  entries: LeaderboardEntryResponse[];
   lastUpdated: number;
   userRank?: number;
   userScore?: number;
@@ -29,7 +35,7 @@ export const getLeaderboard = onCall<GetLeaderboardRequest, Promise<GetLeaderboa
     // Validate limit
     const safeLimit = Math.min(Math.max(1, limit), 100);
 
-    let entries: LeaderboardEntry[] = [];
+    let entries: any[] = [];
     let lastUpdated = Date.now();
 
     if (gameId) {
@@ -118,8 +124,10 @@ export const getLeaderboard = onCall<GetLeaderboardRequest, Promise<GetLeaderboa
 
     return {
       entries: entries.map((e) => ({
-        ...e,
-        timestamp: e.timestamp?.toMillis ? e.timestamp : { toMillis: () => Date.now() },
+        odedId: e.odedId,
+        username: e.username,
+        score: e.score,
+        timestamp: e.timestamp?.toMillis ? e.timestamp.toMillis() : Date.now(),
       })),
       lastUpdated,
       userRank,
