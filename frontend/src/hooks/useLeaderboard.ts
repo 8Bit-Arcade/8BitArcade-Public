@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { functions, httpsCallable, db } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
+import { getFirebaseFunctions, httpsCallable } from '@/lib/firebase-functions';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 interface LeaderboardEntry {
@@ -25,15 +26,11 @@ export function useLeaderboard(gameId?: string, period: Period = 'allTime') {
 
   // Fetch leaderboard data
   const fetchLeaderboard = useCallback(async () => {
-    if (!functions) {
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
+      const functions = getFirebaseFunctions();
       const getLeaderboardFn = httpsCallable<any, LeaderboardData>(
         functions,
         'getLeaderboard'

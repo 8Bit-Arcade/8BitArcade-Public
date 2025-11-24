@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { functions, httpsCallable } from '@/lib/firebase';
+import { getFirebaseFunctions, httpsCallable } from '@/lib/firebase-functions';
 
 // Types matching the backend
 interface GameInput {
@@ -64,15 +64,11 @@ export function useScoreSubmission() {
       mode: 'ranked' | 'tournament',
       tournamentId?: string
     ): Promise<CreateSessionResponse | null> => {
-      if (!functions) {
-        console.warn('Firebase Functions not initialized');
-        return null;
-      }
-
       setIsLoading(true);
       setError(null);
 
       try {
+        const functions = getFirebaseFunctions();
         const createSessionFn = httpsCallable<any, CreateSessionResponse>(
           functions,
           'createSession'
@@ -108,11 +104,6 @@ export function useScoreSubmission() {
       finalScore: number,
       duration: number
     ): Promise<SubmitScoreResponse | null> => {
-      if (!functions) {
-        console.warn('Firebase Functions not initialized');
-        return null;
-      }
-
       setIsLoading(true);
       setError(null);
 
@@ -130,6 +121,7 @@ export function useScoreSubmission() {
           checksum,
         };
 
+        const functions = getFirebaseFunctions();
         const submitScoreFn = httpsCallable<any, SubmitScoreResponse>(
           functions,
           'submitScore'

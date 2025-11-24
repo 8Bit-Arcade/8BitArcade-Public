@@ -1,7 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getFunctions, Functions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 
 // Firebase configuration - replace with your actual config
 const firebaseConfig = {
@@ -20,7 +19,6 @@ const useEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true';
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
-let functions: Functions;
 
 if (typeof window !== 'undefined') {
   if (!getApps().length) {
@@ -30,19 +28,17 @@ if (typeof window !== 'undefined') {
   }
   auth = getAuth(app);
   db = getFirestore(app);
-  functions = getFunctions(app);
 
   // Connect to emulators in development
   if (useEmulators) {
     console.log('🔧 Connecting to Firebase Emulators...');
     connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
     connectFirestoreEmulator(db, 'localhost', 8080);
-    connectFunctionsEmulator(functions, 'localhost', 5001);
     console.log('✅ Connected to Firebase Emulators');
   }
 }
 
-export { app, auth, db, functions, httpsCallable };
+export { app, auth, db };
 
 // Helper to check if Firebase is configured
 export const isFirebaseConfigured = (): boolean => {
