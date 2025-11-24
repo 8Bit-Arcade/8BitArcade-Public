@@ -193,13 +193,12 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-8">
-            <h1 className="font-pixel text-3xl md:text-5xl text-arcade-green glow-green mb-4">
-              8-BIT ARCADE
-            </h1>
+       //     <h1 className="font-pixel text-3xl md:text-5xl text-arcade-green glow-green mb-4">
+       //       8-BIT ARCADE
+       //     </h1>
             <p className="font-arcade text-xl md:text-2xl text-gray-300 mb-6">
-              Play Classic Games. Compete Globally. Earn 8BIT Tokens.
+              Play the Classic 8-Bit Video Games You know and Love and Make Real Money! Compete Globally. Earn 8BIT Tokens.
             </p>
-
             {!isConnected && (
               <div className="flex justify-center">
                 <ConnectButton />
@@ -209,9 +208,9 @@ export default function HomePage() {
 
           {/* Featured Game Carousel */}
           <div id="featured-carousel" className="relative mb-8">
-            <h2 className="font-pixel text-arcade-cyan text-sm mb-6 text-center">
-              FEATURED GAMES
-            </h2>
+     //       <h2 className="font-pixel text-arcade-cyan text-sm mb-6 text-center">
+     //         FEATURED GAMES
+     //       </h2>
 
             <GameCarousel
               games={FEATURED_GAMES}
