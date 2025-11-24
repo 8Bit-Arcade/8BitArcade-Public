@@ -1,14 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  trailingSlash: true,
+  // Use standalone for Firebase App Hosting (server-side)
+  // Change to 'export' if deploying to static hosting instead
+  output: 'standalone',
+
   images: {
     unoptimized: true,
   },
-  // Required for static export compatibility
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Never bundle Node.js-only or React Native packages into client bundle
