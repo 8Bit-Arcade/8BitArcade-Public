@@ -96,9 +96,21 @@ See [Technical Specification](docs/TECHNICAL_SPECIFICATION.md) for full details.
 | Block Drop | Tetris | Medium |
 | Paddle Battle | Pong | Easy |
 
-## Contributing
+## Game Screenshots
 
-Contributions are welcome! Please read our contributing guidelines first.
+frontend/public/games/
+├── space-rocks.png
+├── alien-assault.png
+├── brick-breaker.png
+├── pixel-snake.png
+├── bug-blaster.png
+├── chomper.png
+├── tunnel-terror.png
+├── galaxy-fighter.png
+├── road-hopper.png
+├── barrel-dodge.png
+├── block-drop.png
+└── paddle-battle.png
 
 ## License
 
