@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { getFirebaseFunctions, httpsCallable } from '@/lib/firebase-functions';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 interface LeaderboardEntry {
@@ -30,19 +29,16 @@ export function useLeaderboard(gameId?: string, period: Period = 'allTime') {
     setError(null);
 
     try {
-      const functions = getFirebaseFunctions();
-      const getLeaderboardFn = httpsCallable<any, LeaderboardData>(
-        functions,
-        'getLeaderboard'
-      );
+      // Dynamic import to avoid bundling undici at build time
+      const { callFunction } = await import('@/lib/firebase-functions');
 
-      const result = await getLeaderboardFn({
+      const result = await callFunction<any, LeaderboardData>('getLeaderboard', {
         gameId,
         period,
         limit: 100,
       });
 
-      setData(result.data);
+      setData(result);
     } catch (err: any) {
       console.error('Failed to fetch leaderboard:', err);
       setError(err.message || 'Failed to fetch leaderboard');

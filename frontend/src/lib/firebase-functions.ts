@@ -1,24 +1,60 @@
-// Separate file for Firebase Functions to avoid bundling undici in pages that don't need it
-import { getFunctions, httpsCallable, connectFunctionsEmulator, Functions } from 'firebase/functions';
-import { app } from './firebase';
+// Separate file for Firebase Functions - uses dynamic imports to avoid bundling undici
+// This file should NEVER be imported at the top level of client components
 
-let functions: Functions | null = null;
+import type { Functions } from 'firebase/functions';
 
-export function getFirebaseFunctions(): Functions {
+let functionsInstance: Functions | null = null;
+let functionsPromise: Promise<Functions> | null = null;
+
+/**
+ * Lazily load Firebase Functions - only imports firebase/functions at runtime
+ */
+export async function getFirebaseFunctions(): Promise<Functions> {
   if (typeof window === 'undefined') {
     throw new Error('Firebase Functions can only be used in the browser');
   }
 
-  if (!functions) {
-    functions = getFunctions(app);
+  if (functionsInstance) {
+    return functionsInstance;
+  }
+
+  if (functionsPromise) {
+    return functionsPromise;
+  }
+
+  functionsPromise = (async () => {
+    // Dynamic import - only loads at runtime, not build time
+    const [{ getFunctions, connectFunctionsEmulator }, { app }] = await Promise.all([
+      import('firebase/functions'),
+      import('./firebase'),
+    ]);
+
+    functionsInstance = getFunctions(app);
 
     // Connect to emulator if configured
     if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
-      connectFunctionsEmulator(functions, 'localhost', 5001);
+      connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
     }
-  }
 
-  return functions;
+    return functionsInstance;
+  })();
+
+  return functionsPromise;
 }
 
-export { httpsCallable };
+/**
+ * Call a Firebase Function - handles dynamic import internally
+ */
+export async function callFunction<T = any, R = any>(
+  functionName: string,
+  data: T
+): Promise<R> {
+  const [{ httpsCallable }, functions] = await Promise.all([
+    import('firebase/functions'),
+    getFirebaseFunctions(),
+  ]);
+
+  const fn = httpsCallable<T, R>(functions, functionName);
+  const result = await fn(data);
+  return result.data;
+}

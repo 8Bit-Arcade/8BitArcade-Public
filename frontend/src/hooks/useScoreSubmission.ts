@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { getFirebaseFunctions, httpsCallable } from '@/lib/firebase-functions';
 
 // Types matching the backend
 interface GameInput {
@@ -68,19 +67,16 @@ export function useScoreSubmission() {
       setError(null);
 
       try {
-        const functions = getFirebaseFunctions();
-        const createSessionFn = httpsCallable<any, CreateSessionResponse>(
-          functions,
-          'createSession'
-        );
+        // Dynamic import to avoid bundling undici at build time
+        const { callFunction } = await import('@/lib/firebase-functions');
 
-        const result = await createSessionFn({
+        const result = await callFunction<any, CreateSessionResponse>('createSession', {
           gameId,
           mode,
           tournamentId,
         });
 
-        return result.data;
+        return result;
       } catch (err: any) {
         console.error('Failed to create session:', err);
         setError(err.message || 'Failed to create session');
@@ -121,14 +117,11 @@ export function useScoreSubmission() {
           checksum,
         };
 
-        const functions = getFirebaseFunctions();
-        const submitScoreFn = httpsCallable<any, SubmitScoreResponse>(
-          functions,
-          'submitScore'
-        );
+        // Dynamic import to avoid bundling undici at build time
+        const { callFunction } = await import('@/lib/firebase-functions');
 
-        const result = await submitScoreFn({ gameData });
-        return result.data;
+        const result = await callFunction<any, SubmitScoreResponse>('submitScore', { gameData });
+        return result;
       } catch (err: any) {
         console.error('Failed to submit score:', err);
         setError(err.message || 'Failed to submit score');
