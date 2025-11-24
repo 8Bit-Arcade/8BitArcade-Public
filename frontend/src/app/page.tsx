@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Button from '@/components/ui/Button';
 import GameCarousel from '@/components/game/GameCarousel';
 import GameGrid, { GameCategory } from '@/components/game/GameGrid';
-import { useGameLeaderboards } from '@/hooks/useGameLeaderboards';
 import { formatNumber } from '@/lib/utils';
 
 // Games data - playable marks which games are implemented
@@ -145,13 +144,33 @@ const ACTIVE_TOURNAMENT = {
   participants: 128,
 };
 
+// Static placeholder leaderboard data for games (no Firebase dependency)
+const GAME_LEADERBOARDS: { [gameId: string]: { rank: number; username: string; score: number }[] } = {
+  'space-rocks': [
+    { rank: 1, username: 'AstroAce', score: 125000 },
+    { rank: 2, username: 'StarBlaster', score: 118500 },
+    { rank: 3, username: 'NebulaNinja', score: 112000 },
+  ],
+  'alien-assault': [
+    { rank: 1, username: 'DefenderX', score: 95000 },
+    { rank: 2, username: 'GalacticHero', score: 88000 },
+    { rank: 3, username: 'InvaderSlayer', score: 82500 },
+  ],
+  'brick-breaker': [
+    { rank: 1, username: 'BrickMaster', score: 78000 },
+    { rank: 2, username: 'PaddlePro', score: 71000 },
+    { rank: 3, username: 'BreakKing', score: 65000 },
+  ],
+  'pixel-snake': [
+    { rank: 1, username: 'SnakeLord', score: 45000 },
+    { rank: 2, username: 'SlitherKing', score: 42000 },
+    { rank: 3, username: 'CoilMaster', score: 38500 },
+  ],
+};
+
 export default function HomePage() {
   const { isConnected } = useAccount();
   const [selectedGame, setSelectedGame] = useState(0);
-
-  // Get game IDs for leaderboard fetching
-  const gameIds = useMemo(() => GAMES.map((g) => g.id), []);
-  const { leaderboards } = useGameLeaderboards(gameIds);
 
   // Handle game selection from grid (maps to full GAMES array index)
   const handleGridSelect = (index: number) => {
@@ -198,7 +217,7 @@ export default function HomePage() {
               games={FEATURED_GAMES}
               selectedIndex={selectedGame}
               onSelectGame={setSelectedGame}
-              leaderboards={leaderboards}
+              leaderboards={GAME_LEADERBOARDS}
             />
 
             {/* Selected Game Actions */}

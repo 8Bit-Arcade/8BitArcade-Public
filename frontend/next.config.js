@@ -9,28 +9,23 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Fix for pino-pretty module not found error and undici issues
   webpack: (config, { isServer }) => {
     if (!isServer) {
+      // Never bundle undici into client - it's Node.js only
+      // Firebase will use browser's native fetch instead
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'undici': false,
+      };
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
       };
-
-      // Force webpack to prefer browser builds over Node.js builds
-      // This prevents Firebase from loading node-esm versions that use undici
-      config.resolve.conditionNames = ['browser', 'import', 'module', 'default'];
-
-      // Completely exclude undici and firebase/functions from client bundles
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'undici': false,
-        '@firebase/functions': false,
-        'firebase/functions': false,
-      };
     }
+
     // Ignore pino-pretty since it's optional
     config.externals = config.externals || [];
     config.externals.push('pino-pretty');

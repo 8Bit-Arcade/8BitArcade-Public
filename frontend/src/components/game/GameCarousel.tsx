@@ -1,7 +1,13 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { TopPlayer } from '@/hooks/useGameLeaderboards';
+
+// Define TopPlayer locally to avoid Firebase import chain
+interface TopPlayer {
+  rank: number;
+  username: string;
+  score: number;
+}
 
 interface Game {
   id: string;
