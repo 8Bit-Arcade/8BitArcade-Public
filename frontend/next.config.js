@@ -9,9 +9,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Transpile Firebase packages to fix undici private class fields issue
-  transpilePackages: ['undici', '@firebase/functions', 'firebase'],
-  // Fix for pino-pretty module not found error
+  // Fix for pino-pretty module not found error and undici issues
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -19,6 +17,11 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+      };
+      // Force Firebase to use browser builds instead of Node.js builds
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'undici': false,
       };
     }
     // Ignore pino-pretty since it's optional
