@@ -18,8 +18,12 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+
+      // Force webpack to prefer browser builds over Node.js builds
+      // This prevents Firebase from loading node-esm versions that use undici
+      config.resolve.conditionNames = ['browser', 'import', 'module', 'default'];
+
       // Completely exclude undici and firebase/functions from client bundles
-      // These are server-only and cause build errors with private class fields
       config.resolve.alias = {
         ...config.resolve.alias,
         'undici': false,
