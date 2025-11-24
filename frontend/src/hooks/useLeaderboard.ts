@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 interface LeaderboardEntry {
   odedId: string;
@@ -23,22 +23,57 @@ export function useLeaderboard(gameId?: string, period: Period = 'allTime') {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch leaderboard data
+  // Fetch leaderboard data directly from Firestore (no Cloud Functions needed)
   const fetchLeaderboard = useCallback(async () => {
+    if (typeof window === 'undefined' || !db) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Dynamic import to avoid bundling undici at build time
-      const { callFunction } = await import('@/lib/firebase-functions');
+      let entries: LeaderboardEntry[] = [];
+      let lastUpdated = Date.now();
 
-      const result = await callFunction<any, LeaderboardData>('getLeaderboard', {
-        gameId,
-        period,
-        limit: 100,
+      if (gameId) {
+        // Game-specific leaderboard
+        const leaderboardRef = doc(db, 'leaderboards', gameId);
+        const snapshot = await getDoc(leaderboardRef);
+
+        if (snapshot.exists()) {
+          const docData = snapshot.data();
+          const periodData = docData?.[period] || [];
+          entries = periodData.slice(0, 100).map((entry: any) => ({
+            odedId: entry.odedId,
+            username: entry.username || 'Anonymous',
+            score: entry.score || 0,
+            timestamp: entry.timestamp?.toMillis?.() || Date.now(),
+          }));
+          lastUpdated = docData?.lastUpdated?.toMillis?.() || Date.now();
+        }
+      } else {
+        // Global leaderboard
+        const globalRef = doc(db, 'globalLeaderboard', period);
+        const snapshot = await getDoc(globalRef);
+
+        if (snapshot.exists()) {
+          const docData = snapshot.data();
+          entries = (docData?.entries || []).slice(0, 100).map((entry: any) => ({
+            odedId: entry.odedId,
+            username: entry.username || 'Anonymous',
+            score: entry.score || 0,
+            timestamp: entry.timestamp?.toMillis?.() || Date.now(),
+          }));
+          lastUpdated = docData?.lastUpdated?.toMillis?.() || Date.now();
+        }
+      }
+
+      setData({
+        entries,
+        lastUpdated,
       });
-
-      setData(result);
     } catch (err: any) {
       console.error('Failed to fetch leaderboard:', err);
       setError(err.message || 'Failed to fetch leaderboard');
@@ -52,28 +87,32 @@ export function useLeaderboard(gameId?: string, period: Period = 'allTime') {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
 
-  // Real-time updates (optional - subscribe to Firestore directly)
+  // Real-time updates
   useEffect(() => {
-    if (!db || !gameId) return;
+    if (typeof window === 'undefined' || !db) return;
 
-    const leaderboardRef = doc(db, 'leaderboards', gameId);
+    const leaderboardRef = gameId
+      ? doc(db, 'leaderboards', gameId)
+      : doc(db, 'globalLeaderboard', period);
 
     const unsubscribe = onSnapshot(
       leaderboardRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          const data = snapshot.data();
-          const entries = (data[period] || []).map((entry: any) => ({
-            ...entry,
+          const docData = snapshot.data();
+          const periodData = gameId ? (docData[period] || []) : (docData.entries || []);
+
+          const entries = periodData.slice(0, 100).map((entry: any) => ({
+            odedId: entry.odedId,
+            username: entry.username || 'Anonymous',
+            score: entry.score || 0,
             timestamp: entry.timestamp?.toMillis?.() || Date.now(),
           }));
 
           setData((prev) => ({
             ...prev,
             entries,
-            lastUpdated: data.lastUpdated?.toMillis?.() || Date.now(),
-            userRank: prev?.userRank,
-            userScore: prev?.userScore,
+            lastUpdated: docData.lastUpdated?.toMillis?.() || Date.now(),
           }));
         }
       },
