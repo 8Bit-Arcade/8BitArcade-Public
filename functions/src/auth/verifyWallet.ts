@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getAuth } from 'firebase-admin/auth';
-import { recoverMessageAddress } from 'viem';
+import { verifyMessage } from 'viem';
 
 interface VerifyWalletRequest {
   address: string;
@@ -31,26 +31,23 @@ export const verifyWallet = onCall<VerifyWalletRequest, Promise<VerifyWalletResp
     }
 
     try {
-      console.log('Attempting to recover address from signature...');
+      console.log('Attempting to verify signature...');
 
-      // Recover the address from the signature
-      const recoveredAddress = await recoverMessageAddress({
+      // Verify the signature matches the message and address
+      const isValid = await verifyMessage({
+        address: address as `0x${string}`,
         message,
         signature,
       });
 
-      console.log('Address recovered:', recoveredAddress);
+      console.log('Signature verification result:', isValid);
 
-      // Verify the recovered address matches the claimed address
-      if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
-        console.error('Address mismatch:', {
-          recovered: recoveredAddress.toLowerCase(),
-          claimed: address.toLowerCase(),
-        });
-        throw new HttpsError('unauthenticated', 'Signature verification failed');
+      if (!isValid) {
+        console.error('Signature verification failed');
+        throw new HttpsError('unauthenticated', 'Invalid signature');
       }
 
-      console.log('Address verified successfully');
+      console.log('Signature verified successfully');
 
       // Verify the message contains the nonce and hasn't expired
       // Expected format: "Sign in to 8-Bit Arcade\n\nNonce: {random}\nTimestamp: {timestamp}"
