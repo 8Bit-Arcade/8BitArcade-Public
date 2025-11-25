@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use standalone for Firebase App Hosting (server-side)
-  // Change to 'export' if deploying to static hosting instead
-  output: 'standalone',
+  // Static export for Firebase Hosting
+  output: 'export',
+  trailingSlash: true,
 
   images: {
     unoptimized: true,
