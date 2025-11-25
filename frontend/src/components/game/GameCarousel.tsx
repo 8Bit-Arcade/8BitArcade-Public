@@ -113,6 +113,7 @@ export default function GameCarousel({
       <div
         ref={containerRef}
         className="relative flex items-center justify-center gap-4 md:gap-6 px-12 md:px-20 py-4 overflow-hidden"
+        style={{ minHeight: '600px' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -126,8 +127,8 @@ export default function GameCarousel({
               onClick={() => !isCenter && onSelectGame(index)}
               className="flex-shrink-0 cursor-pointer"
               style={{
-                width: isCenter ? 'clamp(20rem, 40vw, 34rem)' : '12rem',
-                opacity: isCenter ? 1 : 0.3,
+                width: isCenter ? 'clamp(20rem, 40vw, 34rem)' : '16rem',
+                opacity: isCenter ? 1 : 0.5,
                 zIndex: isCenter ? 20 : 10,
                 transform: isCenter
                   ? 'scale(1.0) translateY(0px)'
