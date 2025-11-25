@@ -12,9 +12,13 @@ const CONFIG = {
   ALIEN_SPACING: 50,
   ALIEN_SPEED_START: 30,
   ALIEN_SPEED_INCREASE: 5,
+  ALIEN_SPEED_PER_WAVE: 15, // Speed increase per wave
   ALIEN_DROP: 20,
   ALIEN_FIRE_RATE: 2000,
+  ALIEN_FIRE_RATE_PER_WAVE: 150, // Fire rate increases per wave
+  ALIEN_FIRE_RATE_MIN: 600, // Minimum fire rate (fastest)
   ALIEN_BULLET_SPEED: 200,
+  ALIEN_BULLET_SPEED_PER_WAVE: 20, // Bullet speed increase per wave
   ALIEN_POINTS: [30, 20, 20, 10, 10],
   LIVES: 3,
 };
@@ -44,6 +48,8 @@ export class AlienAssaultScene extends Phaser.Scene {
 
   private alienDirection: number = 1;
   private alienSpeed: number = CONFIG.ALIEN_SPEED_START;
+  private alienFireRate: number = CONFIG.ALIEN_FIRE_RATE;
+  private alienBulletSpeed: number = CONFIG.ALIEN_BULLET_SPEED;
   private lastFired: number = 0;
   private lastAlienFired: number = 0;
 
@@ -178,7 +184,7 @@ export class AlienAssaultScene extends Phaser.Scene {
 
   alienFire(): void {
     const now = this.time.now;
-    if (now - this.lastAlienFired < CONFIG.ALIEN_FIRE_RATE) return;
+    if (now - this.lastAlienFired < this.alienFireRate) return;
 
     // Get bottom-most active aliens in each column
     const bottomAliens: Alien[] = [];
@@ -339,8 +345,13 @@ export class AlienAssaultScene extends Phaser.Scene {
     this.aliens.forEach((a) => a.graphics.destroy());
     this.createAliens();
 
-    // Reset speed
-    this.alienSpeed = CONFIG.ALIEN_SPEED_START + (this.level - 1) * 10;
+    // Increase difficulty with each wave
+    this.alienSpeed = CONFIG.ALIEN_SPEED_START + (this.level - 1) * CONFIG.ALIEN_SPEED_PER_WAVE;
+    this.alienFireRate = Math.max(
+      CONFIG.ALIEN_FIRE_RATE_MIN,
+      CONFIG.ALIEN_FIRE_RATE - (this.level - 1) * CONFIG.ALIEN_FIRE_RATE_PER_WAVE
+    );
+    this.alienBulletSpeed = CONFIG.ALIEN_BULLET_SPEED + (this.level - 1) * CONFIG.ALIEN_BULLET_SPEED_PER_WAVE;
   }
 
   endGame(): void {
@@ -387,7 +398,7 @@ export class AlienAssaultScene extends Phaser.Scene {
     });
 
     this.alienBullets.getChildren().forEach((bullet) => {
-      (bullet as Phaser.GameObjects.Graphics).y += CONFIG.ALIEN_BULLET_SPEED * (delta / 1000);
+      (bullet as Phaser.GameObjects.Graphics).y += this.alienBulletSpeed * (delta / 1000);
     });
 
     // Move aliens
