@@ -254,24 +254,24 @@ export default function HomePage() {
                   COMING SOON
                 </p>
               )}
-              <div className="flex justify-center gap-4 flex-wrap">
+              <div className="flex justify-center gap-3 flex-wrap max-w-2xl mx-auto">
                 {FEATURED_GAMES[selectedGame].playable ? (
                   <>
                     <Link href={`/games/${FEATURED_GAMES[selectedGame].id}`}>
-                      <Button variant="secondary" size="lg">Free Play</Button>
+                      <Button variant="secondary" size="md" className="min-w-[140px]">Free Play</Button>
                     </Link>
                     {isConnected ? (
                       <Link href={`/games/${FEATURED_GAMES[selectedGame].id}`}>
-                        <Button variant="primary" size="lg">Play Ranked</Button>
+                        <Button variant="primary" size="md" className="min-w-[140px]">Play Ranked</Button>
                       </Link>
                     ) : (
-                      <Button variant="primary" size="lg" disabled>
+                      <Button variant="primary" size="md" disabled className="whitespace-nowrap">
                         Connect to Play Ranked
                       </Button>
                     )}
                   </>
                 ) : (
-                  <Button variant="secondary" size="lg" disabled>
+                  <Button variant="secondary" size="md" disabled>
                     Coming Soon
                   </Button>
                 )}
