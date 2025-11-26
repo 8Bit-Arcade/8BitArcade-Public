@@ -114,7 +114,7 @@ export default function GameCarousel({
       {/* Carousel Container */}
       <div
         ref={containerRef}
-        className="relative flex items-center justify-center gap-4 md:gap-6 px-12 md:px-20 py-4 overflow-hidden"
+        className="relative flex items-center justify-center gap-4 md:gap-6 px-12 md:px-20 py-2 overflow-hidden"
         style={{ minHeight: '600px' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -237,7 +237,7 @@ export default function GameCarousel({
       </div>
 
       {/* Game Counter and Leaderboard Button */}
-      <div className="text-center mt-0 space-y-3">
+      <div className="text-center mt-0 space-y-5">
         <span className="font-arcade text-lg md:text-xl text-gray-400">
           {selectedIndex + 1} / {games.length}
         </span>
