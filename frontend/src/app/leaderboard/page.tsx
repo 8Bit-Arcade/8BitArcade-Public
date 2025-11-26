@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import LeaderboardTable from '@/components/leaderboard/LeaderboardTable';
 import LeaderboardTabs from '@/components/leaderboard/LeaderboardTabs';
@@ -13,8 +14,18 @@ type Period = 'daily' | 'weekly' | 'allTime';
 
 export default function LeaderboardPage() {
   const { address } = useAccount();
+  const searchParams = useSearchParams();
+  const gameParam = searchParams.get('game');
+
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('allTime');
-  const [selectedGame, setSelectedGame] = useState('all');
+  const [selectedGame, setSelectedGame] = useState(gameParam || 'all');
+
+  // Update selected game when query param changes
+  useEffect(() => {
+    if (gameParam) {
+      setSelectedGame(gameParam);
+    }
+  }, [gameParam]);
 
   // Fetch leaderboard data
   const { data, isLoading, error } = useLeaderboard(
