@@ -234,11 +234,19 @@ export default function GameCarousel({
         })}
       </div>
 
-      {/* Game Counter */}
-      <div className="text-center mt-4">
-        <span className="font-arcade text-sm text-gray-500">
+      {/* Game Counter and Leaderboard Button */}
+      <div className="text-center mt-2 space-y-3">
+        <span className="font-arcade text-base md:text-lg text-gray-400">
           {selectedIndex + 1} / {games.length}
         </span>
+        <div>
+          <a
+            href={`/leaderboard?game=${games[selectedIndex].id}`}
+            className="inline-block px-4 py-2 bg-arcade-dark border-2 border-arcade-cyan/50 rounded text-arcade-cyan font-pixel text-xs md:text-sm hover:bg-arcade-cyan/10 hover:border-arcade-cyan transition-all duration-200"
+          >
+            VIEW LEADERBOARD
+          </a>
+        </div>
       </div>
     </div>
   );

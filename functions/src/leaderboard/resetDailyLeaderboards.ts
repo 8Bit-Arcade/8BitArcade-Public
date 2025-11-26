@@ -18,12 +18,25 @@ export const resetDailyLeaderboards = onSchedule(
     const now = Timestamp.now();
     const gameIds = Object.keys(GAME_CONFIGS);
 
+    // Reset game-specific leaderboards
     for (const gameId of gameIds) {
       try {
         await processGameLeaderboard(gameId, now);
       } catch (error) {
         console.error(`Error processing leaderboard for ${gameId}:`, error);
       }
+    }
+
+    // Reset global daily leaderboard
+    try {
+      const globalRef = collections.globalLeaderboard.doc('daily');
+      await globalRef.update({
+        entries: [],
+        lastUpdated: now,
+      });
+      console.log('Reset global daily leaderboard');
+    } catch (error) {
+      console.error('Error resetting global daily leaderboard:', error);
     }
 
     console.log('Daily leaderboard reset complete');
@@ -116,6 +129,7 @@ export const resetWeeklyLeaderboards = onSchedule(
     const now = Timestamp.now();
     const gameIds = Object.keys(GAME_CONFIGS);
 
+    // Reset game-specific weekly leaderboards
     for (const gameId of gameIds) {
       try {
         const leaderboardRef = collections.leaderboards.doc(gameId);
@@ -131,6 +145,18 @@ export const resetWeeklyLeaderboards = onSchedule(
       } catch (error) {
         console.error(`Error resetting weekly leaderboard for ${gameId}:`, error);
       }
+    }
+
+    // Reset global weekly leaderboard
+    try {
+      const globalRef = collections.globalLeaderboard.doc('weekly');
+      await globalRef.update({
+        entries: [],
+        lastUpdated: now,
+      });
+      console.log('Reset global weekly leaderboard');
+    } catch (error) {
+      console.error('Error resetting global weekly leaderboard:', error);
     }
 
     console.log('Weekly leaderboard reset complete');

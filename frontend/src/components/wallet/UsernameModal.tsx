@@ -45,7 +45,26 @@ export default function UsernameModal() {
 
       await signMessageAsync({ message });
 
-      // Save username linked to wallet address
+      // Save username to Firestore
+      const { getFirestoreInstance, isFirebaseConfigured } = await import('@/lib/firebase-client');
+      if (isFirebaseConfigured()) {
+        const [db, { doc, setDoc, serverTimestamp }] = await Promise.all([
+          getFirestoreInstance(),
+          import('firebase/firestore'),
+        ]);
+
+        const userRef = doc(db, 'users', address.toLowerCase());
+        await setDoc(userRef, {
+          username: inputValue,
+          address: address.toLowerCase(),
+          createdAt: serverTimestamp(),
+          lastActive: serverTimestamp(),
+        }, { merge: true });
+
+        console.log('✅ Username saved to Firestore:', inputValue);
+      }
+
+      // Save username linked to wallet address (localStorage)
       setUsername(address, inputValue);
       setIsNewUser(false);
       setUsernameModalOpen(false);
@@ -56,7 +75,7 @@ export default function UsernameModal() {
       });
     } catch (err) {
       console.error('Failed to set username:', err);
-      setError('Failed to verify signature. Please try again.');
+      setError('Failed to save username. Please try again.');
     } finally {
       setIsLoading(false);
     }
