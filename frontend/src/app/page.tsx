@@ -7,6 +7,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Button from '@/components/ui/Button';
 import GameCarousel from '@/components/game/GameCarousel';
 import GameGrid, { GameCategory } from '@/components/game/GameGrid';
+import LeaderboardModal from '@/components/leaderboard/LeaderboardModal';
 import { formatNumber } from '@/lib/utils';
 import { getFirestoreInstance, isFirebaseConfigured } from '@/lib/firebase-client';
 
@@ -141,6 +142,7 @@ export default function HomePage() {
   const [selectedGame, setSelectedGame] = useState(0);
   const [gameLeaderboards, setGameLeaderboards] = useState<{ [gameId: string]: { rank: number; username: string; score: number }[] }>({});
   const [topPlayers, setTopPlayers] = useState<{ rank: number; username: string; score: number }[]>([]);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   // Log version info on mount
   useEffect(() => {
@@ -266,31 +268,47 @@ export default function HomePage() {
                   COMING SOON
                 </p>
               )}
-              <div className="flex justify-center gap-3 flex-wrap max-w-2xl mx-auto">
-                {FEATURED_GAMES[selectedGame].playable ? (
-                  <>
-                    <Link href={`/games/${FEATURED_GAMES[selectedGame].id}`}>
-                      <Button variant="secondary" size="md" className="min-w-[140px]">Free Play</Button>
-                    </Link>
-                    {isConnected ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex justify-center gap-3 flex-wrap max-w-2xl">
+                  {FEATURED_GAMES[selectedGame].playable ? (
+                    <>
                       <Link href={`/games/${FEATURED_GAMES[selectedGame].id}`}>
-                        <Button variant="primary" size="md" className="min-w-[140px]">Play Ranked</Button>
+                        <Button variant="secondary" size="md" className="min-w-[140px]">Free Play</Button>
                       </Link>
-                    ) : (
-                      <Button variant="primary" size="md" disabled className="whitespace-nowrap">
-                        Connect to Play Ranked
-                      </Button>
-                    )}
-                  </>
-                ) : (
-                  <Button variant="secondary" size="md" disabled>
-                    Coming Soon
-                  </Button>
-                )}
+                      {isConnected ? (
+                        <Link href={`/games/${FEATURED_GAMES[selectedGame].id}`}>
+                          <Button variant="primary" size="md" className="min-w-[140px]">Play Ranked</Button>
+                        </Link>
+                      ) : (
+                        <Button variant="primary" size="md" disabled className="whitespace-nowrap">
+                          Connect to Play Ranked
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <Button variant="secondary" size="md" disabled>
+                      Coming Soon
+                    </Button>
+                  )}
+                </div>
+                <button
+                  onClick={() => setIsLeaderboardOpen(true)}
+                  className="px-4 py-2 bg-arcade-dark border-2 border-arcade-cyan/50 rounded text-arcade-cyan font-pixel text-xs md:text-sm hover:bg-arcade-cyan/10 hover:border-arcade-cyan transition-all duration-200"
+                >
+                  VIEW LEADERBOARD
+                </button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Leaderboard Modal */}
+        <LeaderboardModal
+          isOpen={isLeaderboardOpen}
+          onClose={() => setIsLeaderboardOpen(false)}
+          gameId={FEATURED_GAMES[selectedGame].id}
+          gameName={FEATURED_GAMES[selectedGame].name}
+        />
       </section>
 
       {/* All Games Section */}

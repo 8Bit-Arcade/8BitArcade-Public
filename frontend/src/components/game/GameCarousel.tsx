@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import LeaderboardModal from '@/components/leaderboard/LeaderboardModal';
 
 // Define TopPlayer locally to avoid Firebase import chain
 interface TopPlayer {
@@ -34,7 +33,6 @@ export default function GameCarousel({
 }: GameCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   const navigate = useCallback((direction: 'prev' | 'next') => {
     if (isAnimating) return;
@@ -114,7 +112,7 @@ export default function GameCarousel({
       {/* Carousel Container */}
       <div
         ref={containerRef}
-        className="relative flex items-center justify-center gap-4 md:gap-6 px-12 md:px-20 py-2 overflow-hidden"
+        className="relative flex items-center justify-center gap-4 md:gap-6 px-12 md:px-20 py-0 overflow-hidden"
         style={{ minHeight: '600px' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -131,15 +129,20 @@ export default function GameCarousel({
             <div
               key={game.id}
               onClick={() => !isCenter && onSelectGame(index)}
-              className="flex-shrink-0 cursor-pointer"
+              className="flex-shrink-0 cursor-pointer absolute left-1/2"
               style={{
-                width: isCenter ? 'clamp(20rem, 40vw, 34rem)' : '16rem',
+                width: 'clamp(20rem, 40vw, 34rem)',
+                maxWidth: '34rem',
                 opacity: isCenter ? 1 : 0.5,
                 zIndex: isCenter ? 20 : 10,
-                transform: `scale(${scaleValue}) translateY(${translateYValue}px)`,
-                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: position === 'left'
+                  ? `translateX(calc(-100% - 2rem)) scale(0.5) translateY(15px)`
+                  : position === 'right'
+                  ? `translateX(2rem) scale(0.5) translateY(15px)`
+                  : 'translateX(-50%) scale(1) translateY(0px)',
+                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
                 filter: isCenter ? 'brightness(1)' : 'brightness(0.6)',
-                willChange: 'transform, opacity, filter, width',
+                willChange: 'transform, opacity, filter',
               }}
             >
               <div
@@ -236,28 +239,12 @@ export default function GameCarousel({
         })}
       </div>
 
-      {/* Game Counter and Leaderboard Button */}
-      <div className="text-center mt-0 space-y-5">
+      {/* Game Counter */}
+      <div className="text-center -mt-4">
         <span className="font-arcade text-lg md:text-xl text-gray-400">
           {selectedIndex + 1} / {games.length}
         </span>
-        <div>
-          <button
-            onClick={() => setIsLeaderboardOpen(true)}
-            className="inline-block px-4 py-2 bg-arcade-dark border-2 border-arcade-cyan/50 rounded text-arcade-cyan font-pixel text-xs md:text-sm hover:bg-arcade-cyan/10 hover:border-arcade-cyan transition-all duration-200"
-          >
-            VIEW LEADERBOARD
-          </button>
-        </div>
       </div>
-
-      {/* Leaderboard Modal */}
-      <LeaderboardModal
-        isOpen={isLeaderboardOpen}
-        onClose={() => setIsLeaderboardOpen(false)}
-        gameId={games[selectedIndex].id}
-        gameName={games[selectedIndex].name}
-      />
     </div>
   );
 }
