@@ -61,6 +61,11 @@ export default function Footer() {
         <p className="text-center font-arcade text-xs text-gray-600 mt-4">
           Play responsibly. Token rewards are subject to availability.
         </p>
+
+        {/* Version Info */}
+        <p className="text-center font-arcade text-xs text-gray-700 mt-2">
+          v2025.11.27 | Build: {process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}
+        </p>
       </div>
     </footer>
   );
