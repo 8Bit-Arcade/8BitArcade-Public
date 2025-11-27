@@ -142,6 +142,18 @@ export default function HomePage() {
   const [gameLeaderboards, setGameLeaderboards] = useState<{ [gameId: string]: { rank: number; username: string; score: number }[] }>({});
   const [topPlayers, setTopPlayers] = useState<{ rank: number; username: string; score: number }[]>([]);
 
+  // Log version info on mount
+  useEffect(() => {
+    console.log('🎮 8-Bit Arcade Version Info:');
+    console.log('   Version: v2025.11.27');
+    console.log('   Build ID:', process.env.NEXT_PUBLIC_BUILD_ID || 'dev');
+    console.log('   Expected changes:');
+    console.log('   ✅ Carousel animation smooth (position-based keys)');
+    console.log('   ✅ Reduced spacing between game and pagination');
+    console.log('   ✅ Increased spacing between pagination and button');
+    console.log('   ✅ Nickname auto-sync on wallet connect');
+  }, []);
+
   // Fetch leaderboard data from Firestore
   useEffect(() => {
     if (!isFirebaseConfigured()) return;
