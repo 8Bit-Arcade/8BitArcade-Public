@@ -3,6 +3,8 @@ import { collections, Timestamp, FieldValue } from '../config/firebase';
 import { GAME_CONFIGS } from '../config/games';
 import { GameData } from '../types';
 import { analyzeGameplay, verifyChecksum } from '../anticheat/statisticalAnalysis';
+import { flagAccount as flagAccountDetailed, isAccountBanned } from '../anticheat/flagging';
+import { replayAlienAssault } from '../anticheat/replay/alienAssaultReplay';
 
 interface SubmitScoreRequest {
   gameData: GameData;
@@ -27,6 +29,12 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
     const { gameData } = request.data;
     const { sessionId, gameId, seed, inputs, finalScore, duration, checksum } = gameData;
     const playerAddress = request.auth.uid.toLowerCase();
+
+    // Check if account is banned
+    const isBanned = await isAccountBanned(playerAddress);
+    if (isBanned) {
+      throw new HttpsError('permission-denied', 'Account is banned');
+    }
 
     // Validate game exists
     if (!GAME_CONFIGS[gameId]) {
@@ -62,22 +70,99 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
 
     // Verify checksum
     if (!verifyChecksum(inputs, seed, checksum)) {
-      await flagAccount(playerAddress, 'checksum_mismatch', gameId, sessionId);
+      await flagAccountDetailed(playerAddress, {
+        type: 'score_mismatch',
+        severity: 'high',
+        gameId,
+        sessionId,
+        claimedScore: finalScore,
+        details: { reason: 'Checksum mismatch' },
+      });
       throw new HttpsError('invalid-argument', 'Checksum verification failed');
     }
 
     // Perform statistical analysis
     const analysis = analyzeGameplay(gameId, inputs, finalScore, duration);
 
-    // If analysis finds serious issues, flag and reject
-    if (analysis.flags.length > 2 || analysis.confidence > 0.6) {
-      await flagAccount(playerAddress, analysis.flags.join(', '), gameId, sessionId);
-      throw new HttpsError('invalid-argument', 'Score validation failed');
+    // If analysis finds serious issues, flag and/or reject
+    if (analysis.flags.length > 0) {
+      const highSeverityFlags = analysis.flags.filter(f => f === 'impossible_score' || f === 'impossible_reaction_time');
+
+      if (highSeverityFlags.length > 0 || analysis.confidence > 0.7) {
+        // High confidence cheating - flag and reject
+        await flagAccountDetailed(playerAddress, {
+          type: 'multiple_violations',
+          severity: 'high',
+          gameId,
+          sessionId,
+          claimedScore: finalScore,
+          details: {
+            flags: analysis.flags,
+            confidence: analysis.confidence,
+          },
+        });
+        throw new HttpsError('invalid-argument', 'Score validation failed - suspicious activity detected');
+      } else if (analysis.confidence > 0.4) {
+        // Medium suspicion - flag but allow (for now)
+        await flagAccountDetailed(playerAddress, {
+          type: 'multiple_violations',
+          severity: 'medium',
+          gameId,
+          sessionId,
+          claimedScore: finalScore,
+          details: {
+            flags: analysis.flags,
+            confidence: analysis.confidence,
+          },
+        });
+      }
     }
 
-    // TODO: In production, perform server-side replay here
-    // For now, we trust scores that pass statistical analysis
-    const verifiedScore = finalScore;
+    // Perform server-side replay for supported games
+    let verifiedScore = finalScore;
+
+    if (gameId === 'alien-assault') {
+      try {
+        const replayResult = await replayAlienAssault(seed, inputs);
+
+        if (!replayResult.valid) {
+          await flagAccountDetailed(playerAddress, {
+            type: 'score_mismatch',
+            severity: 'high',
+            gameId,
+            sessionId,
+            claimedScore: finalScore,
+            calculatedScore: replayResult.score,
+            details: { error: replayResult.errorMessage },
+          });
+          throw new HttpsError('invalid-argument', 'Replay validation failed');
+        }
+
+        // Allow 1% tolerance for floating point differences
+        const tolerance = Math.max(1, finalScore * 0.01);
+        const scoreDiff = Math.abs(replayResult.score - finalScore);
+
+        if (scoreDiff > tolerance) {
+          await flagAccountDetailed(playerAddress, {
+            type: 'score_mismatch',
+            severity: 'high',
+            gameId,
+            sessionId,
+            claimedScore: finalScore,
+            calculatedScore: replayResult.score,
+            details: { difference: scoreDiff, tolerance },
+          });
+          throw new HttpsError('invalid-argument', `Score mismatch: claimed ${finalScore}, calculated ${replayResult.score}`);
+        }
+
+        verifiedScore = replayResult.score; // Use server-calculated score
+        console.log(`✅ Replay validated for ${playerAddress}: ${verifiedScore} points`);
+      } catch (error: any) {
+        if (error instanceof HttpsError) throw error;
+        console.error('Replay error:', error);
+        // If replay fails technically, fall back to statistical analysis
+      }
+    }
 
     // Mark session as completed
     await sessionRef.update({
@@ -158,37 +243,6 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
     };
   }
 );
-
-/**
- * Flag an account for suspicious activity
- */
-async function flagAccount(
-  address: string,
-  reason: string,
-  gameId: string,
-  sessionId: string
-): Promise<void> {
-  const userRef = collections.users.doc(address);
-
-  await userRef.set(
-    {
-      flags: {
-        count: FieldValue.increment(1),
-        reasons: FieldValue.arrayUnion(reason),
-        lastFlagged: Timestamp.now(),
-      },
-    },
-    { merge: true }
-  );
-
-  // Log the flag event
-  console.warn(`Account flagged: ${address}`, {
-    reason,
-    gameId,
-    sessionId,
-    timestamp: new Date().toISOString(),
-  });
-}
 
 /**
  * Update leaderboard with new score

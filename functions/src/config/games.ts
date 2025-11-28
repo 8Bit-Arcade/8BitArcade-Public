@@ -12,7 +12,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   'space-rocks': {
     id: 'space-rocks',
     name: 'Space Rocks',
-    maxTheoreticalScore: 999999,
+    maxTheoreticalScore: 75000, // ~30 waves max in perfect play
     minGameDuration: 5000, // At least 5 seconds
     maxInputsPerSecond: 30,
     pointsPerSecondLimit: 500, // ~500 points per second max
@@ -20,7 +20,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   'alien-assault': {
     id: 'alien-assault',
     name: 'Alien Assault',
-    maxTheoreticalScore: 999999,
+    maxTheoreticalScore: 50000, // ~250 aliens max per game
     minGameDuration: 10000,
     maxInputsPerSecond: 25,
     pointsPerSecondLimit: 300,
@@ -28,7 +28,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   'brick-breaker': {
     id: 'brick-breaker',
     name: 'Brick Breaker',
-    maxTheoreticalScore: 999999,
+    maxTheoreticalScore: 30000, // All bricks + combos
     minGameDuration: 10000,
     maxInputsPerSecond: 20,
     pointsPerSecondLimit: 200,
@@ -36,7 +36,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   'pixel-snake': {
     id: 'pixel-snake',
     name: 'Pixel Snake',
-    maxTheoreticalScore: 999999,
+    maxTheoreticalScore: 100000, // Theoretical max length
     minGameDuration: 5000,
     maxInputsPerSecond: 15,
     pointsPerSecondLimit: 50,
