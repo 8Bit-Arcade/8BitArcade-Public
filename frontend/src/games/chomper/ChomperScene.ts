@@ -491,29 +491,40 @@ export class ChomperScene extends Phaser.Scene {
     }
 
     // Move in current direction
-    const targetGridX = this.playerGridX + this.playerDir.x;
-    const targetGridY = this.playerGridY + this.playerDir.y;
+    if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
+      const targetGridX = this.playerGridX + this.playerDir.x;
+      const targetGridY = this.playerGridY + this.playerDir.y;
 
-    if (this.canMoveTo(targetGridX, targetGridY)) {
-      this.playerX += this.playerDir.x * speed * dt;
-      this.playerY += this.playerDir.y * speed * dt;
+      if (this.canMoveTo(targetGridX, targetGridY)) {
+        // Move in pixel coordinates
+        this.playerX += this.playerDir.x * speed * dt;
+        this.playerY += this.playerDir.y * speed * dt;
 
-      // Update grid position when crossing tile center
-      const centerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-      const centerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        // Update grid position when crossing tile boundaries
+        const centerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        const centerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
 
-      if (this.playerDir.x > 0 && this.playerX >= centerX + CONFIG.TILE_SIZE) {
-        this.playerGridX++;
-        this.checkPelletCollision();
-      } else if (this.playerDir.x < 0 && this.playerX <= centerX - CONFIG.TILE_SIZE) {
-        this.playerGridX--;
-        this.checkPelletCollision();
-      } else if (this.playerDir.y > 0 && this.playerY >= centerY + CONFIG.TILE_SIZE) {
-        this.playerGridY++;
-        this.checkPelletCollision();
-      } else if (this.playerDir.y < 0 && this.playerY <= centerY - CONFIG.TILE_SIZE) {
-        this.playerGridY--;
-        this.checkPelletCollision();
+        if (this.playerDir.x > 0 && this.playerX >= centerX + CONFIG.TILE_SIZE) {
+          this.playerGridX++;
+          this.playerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          this.checkPelletCollision();
+        } else if (this.playerDir.x < 0 && this.playerX <= centerX - CONFIG.TILE_SIZE) {
+          this.playerGridX--;
+          this.playerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          this.checkPelletCollision();
+        } else if (this.playerDir.y > 0 && this.playerY >= centerY + CONFIG.TILE_SIZE) {
+          this.playerGridY++;
+          this.playerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          this.checkPelletCollision();
+        } else if (this.playerDir.y < 0 && this.playerY <= centerY - CONFIG.TILE_SIZE) {
+          this.playerGridY--;
+          this.playerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          this.checkPelletCollision();
+        }
+      } else {
+        // Can't move forward, snap to grid center
+        this.playerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        this.playerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
       }
     }
 
@@ -534,102 +545,99 @@ export class ChomperScene extends Phaser.Scene {
       const levelSpeedBonus = (this.level - 1) * CONFIG.SPEED_INCREASE_PER_LEVEL;
       const speed = ghost.frightened ? CONFIG.FRIGHTENED_SPEED : CONFIG.GHOST_SPEED + levelSpeedBonus;
 
-      // Choose new target when reaching current target
-      if (ghost.gridX === ghost.targetGridX && ghost.gridY === ghost.targetGridY) {
-        this.chooseGhostTarget(ghost);
+      // Always chase player (or scatter if frightened/eaten)
+      if (ghost.eaten) {
+        ghost.targetGridX = ghost.homeX;
+        ghost.targetGridY = ghost.homeY;
+      } else if (ghost.frightened) {
+        // Random scatter behavior - only update target when at grid center
+        const atCenter =
+          Math.abs(ghost.x - (ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2)) < 2 &&
+          Math.abs(ghost.y - (ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2)) < 2;
+        if (atCenter) {
+          const dirs = [
+            { x: ghost.gridX + 1, y: ghost.gridY },
+            { x: ghost.gridX - 1, y: ghost.gridY },
+            { x: ghost.gridX, y: ghost.gridY + 1 },
+            { x: ghost.gridX, y: ghost.gridY - 1 },
+          ].filter(d => this.canMoveTo(d.x, d.y));
+          if (dirs.length > 0) {
+            const dir = dirs[Math.floor(this.rng.next() * dirs.length)];
+            ghost.targetGridX = dir.x;
+            ghost.targetGridY = dir.y;
+          }
+        }
+      } else {
+        // Normal mode: always chase player
+        ghost.targetGridX = this.playerGridX;
+        ghost.targetGridY = this.playerGridY;
       }
 
       // Calculate direction to target
       const dx = ghost.targetGridX - ghost.gridX;
       const dy = ghost.targetGridY - ghost.gridY;
 
-      // Determine which direction to try first based on target
-      let moveX = Math.abs(dx) > Math.abs(dy);
-      let tried = false;
-
-      // Try to move in the best direction, or alternate if blocked
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (moveX && Math.abs(dx) > 0) {
-          const moveDir = Math.sign(dx);
-          const nextGridX = ghost.gridX + moveDir;
-          if (this.canMoveTo(nextGridX, ghost.gridY)) {
-            ghost.x += moveDir * speed * dt;
-            tried = true;
-            break;
-          }
-        } else if (!moveX && Math.abs(dy) > 0) {
-          const moveDir = Math.sign(dy);
-          const nextGridY = ghost.gridY + moveDir;
-          if (this.canMoveTo(ghost.gridX, nextGridY)) {
-            ghost.y += moveDir * speed * dt;
-            tried = true;
-            break;
-          }
+      // Choose best direction
+      let moveDir = { x: 0, y: 0 };
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Try horizontal first
+        if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
+          moveDir.x = Math.sign(dx);
+        } else if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
+          moveDir.y = Math.sign(dy);
         }
-        // If first direction failed, try the other direction
-        moveX = !moveX;
+      } else {
+        // Try vertical first
+        if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
+          moveDir.y = Math.sign(dy);
+        } else if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
+          moveDir.x = Math.sign(dx);
+        }
       }
 
-      // If still can't move in target direction, pick any valid direction
-      if (!tried) {
-        const directions = [
-          { dx: 1, dy: 0 },
-          { dx: -1, dy: 0 },
-          { dx: 0, dy: 1 },
-          { dx: 0, dy: -1 },
+      // If no preferred direction, pick any valid direction
+      if (moveDir.x === 0 && moveDir.y === 0) {
+        const dirs = [
+          { x: 1, y: 0 },
+          { x: -1, y: 0 },
+          { x: 0, y: 1 },
+          { x: 0, y: -1 },
         ];
-        for (const dir of directions) {
-          if (this.canMoveTo(ghost.gridX + dir.dx, ghost.gridY + dir.dy)) {
-            ghost.x += dir.dx * speed * dt;
-            ghost.y += dir.dy * speed * dt;
+        for (const dir of dirs) {
+          if (this.canMoveTo(ghost.gridX + dir.x, ghost.gridY + dir.y)) {
+            moveDir = dir;
             break;
           }
         }
       }
 
-      // Update grid position when crossing tile center
-      const centerX = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-      const centerY = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+      // Move ghost
+      if (moveDir.x !== 0 || moveDir.y !== 0) {
+        ghost.x += moveDir.x * speed * dt;
+        ghost.y += moveDir.y * speed * dt;
 
-      if (ghost.x >= centerX + CONFIG.TILE_SIZE) {
-        ghost.gridX++;
-        ghost.x = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-      } else if (ghost.x <= centerX - CONFIG.TILE_SIZE) {
-        ghost.gridX--;
-        ghost.x = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-      }
+        // Update grid position when crossing tile boundaries
+        const centerX = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        const centerY = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
 
-      if (ghost.y >= centerY + CONFIG.TILE_SIZE) {
-        ghost.gridY++;
-        ghost.y = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-      } else if (ghost.y <= centerY - CONFIG.TILE_SIZE) {
-        ghost.gridY--;
-        ghost.y = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        if (moveDir.x > 0 && ghost.x >= centerX + CONFIG.TILE_SIZE) {
+          ghost.gridX++;
+          ghost.x = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        } else if (moveDir.x < 0 && ghost.x <= centerX - CONFIG.TILE_SIZE) {
+          ghost.gridX--;
+          ghost.x = ghost.gridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        }
+
+        if (moveDir.y > 0 && ghost.y >= centerY + CONFIG.TILE_SIZE) {
+          ghost.gridY++;
+          ghost.y = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        } else if (moveDir.y < 0 && ghost.y <= centerY - CONFIG.TILE_SIZE) {
+          ghost.gridY--;
+          ghost.y = ghost.gridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+        }
       }
 
       this.drawGhost(ghost);
-    }
-  }
-
-  chooseGhostTarget(ghost: Ghost): void {
-    if (ghost.frightened) {
-      // Random movement when frightened
-      const dirs = [
-        { x: 0, y: -1 },
-        { x: 0, y: 1 },
-        { x: -1, y: 0 },
-        { x: 1, y: 0 },
-      ].filter(d => this.canMoveTo(ghost.gridX + d.x, ghost.gridY + d.y));
-
-      if (dirs.length > 0) {
-        const dir = dirs[Math.floor(this.rng.next() * dirs.length)];
-        ghost.targetGridX = ghost.gridX + dir.x;
-        ghost.targetGridY = ghost.gridY + dir.y;
-      }
-    } else {
-      // Chase player
-      ghost.targetGridX = this.playerGridX;
-      ghost.targetGridY = this.playerGridY;
     }
   }
 
