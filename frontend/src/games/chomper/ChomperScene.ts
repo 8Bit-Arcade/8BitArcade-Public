@@ -16,7 +16,7 @@ const CONFIG = {
   POWER_DECREASE_PER_LEVEL: 500,
 };
 
-// Multiple maze layouts (28x31 grid) - cycles through levels
+// Multiple maze layouts (28x30 grid) - cycles through levels
 const MAZES = [
   // Maze 1: Classic Pac-Man style
   [
@@ -50,7 +50,6 @@ const MAZES = [
     '#.##########.##.##########.#',
     '#.##########.##.##########.#',
     '#..........................#',
-    '############################',
   ],
 
   // Maze 2: Open corridors with central chamber
@@ -84,7 +83,6 @@ const MAZES = [
     '#.########.####.########.#',
     '#.########.####.########.#',
     '#o........................o#',
-    '############################',
   ],
 
   // Maze 3: Zigzag tunnels
@@ -118,7 +116,6 @@ const MAZES = [
     '##########.######.##########',
     '##########.######.##########',
     '#..........................#',
-    '############################',
   ],
 ];
 
@@ -554,12 +551,33 @@ export class ChomperScene extends Phaser.Scene {
 
       // Determine target position based on ghost state
       if (!ghost.exitedHouse) {
-        // Exiting house - move straight up to exit area
-        ghost.targetGridX = 14;
-        ghost.targetGridY = 9; // Move to row 9 (above exit)
-        // Mark as exited when we reach the target
-        if (ghost.gridY <= 9 && ghost.gridX === 14) {
-          ghost.exitedHouse = true;
+        // Exiting house - each ghost takes slightly different path
+        const exitCenterX = 14;
+        const exitY = 11;
+
+        // First move to exit level
+        if (ghost.gridY > exitY) {
+          ghost.targetGridX = exitCenterX;
+          ghost.targetGridY = exitY;
+        } else {
+          // Then move to unique position based on ghost
+          if (ghost.name === 'red') {
+            ghost.targetGridX = exitCenterX;
+            ghost.targetGridY = 9;
+          } else if (ghost.name === 'pink') {
+            ghost.targetGridX = exitCenterX - 3;
+            ghost.targetGridY = 9;
+          } else if (ghost.name === 'cyan') {
+            ghost.targetGridX = exitCenterX + 3;
+            ghost.targetGridY = 9;
+          } else {
+            ghost.targetGridX = exitCenterX;
+            ghost.targetGridY = 11;
+          }
+          // Mark as exited when reaching final exit position
+          if (ghost.gridY <= 9 || (ghost.name === 'orange' && ghost.gridY === 11 && Math.abs(ghost.gridX - exitCenterX) > 2)) {
+            ghost.exitedHouse = true;
+          }
         }
       } else if (ghost.eaten) {
         // Return home when eaten - can pass through walls
@@ -587,45 +605,62 @@ export class ChomperScene extends Phaser.Scene {
       } else {
         // Normal mode: each ghost has different targeting behavior
         if (ghost.name === 'red') {
-          // Red (Blinky): Direct chase - targets player's current position
+          // Red (Blinky): Direct chase - always targets player's current position
           ghost.targetGridX = this.playerGridX;
           ghost.targetGridY = this.playerGridY;
         } else if (ghost.name === 'pink') {
-          // Pink (Pinky): Ambush - targets 3 tiles ahead of player
+          // Pink (Pinky): Ambush - targets 4 tiles ahead of player
           let targetX = this.playerGridX;
           let targetY = this.playerGridY;
-          if (this.playerDir.x !== 0) targetX += this.playerDir.x * 3;
-          if (this.playerDir.y !== 0) targetY += this.playerDir.y * 3;
-          ghost.targetGridX = Math.max(0, Math.min(this.maze[0].length - 1, targetX));
-          ghost.targetGridY = Math.max(0, Math.min(this.maze.length - 1, targetY));
-        } else if (ghost.name === 'cyan') {
-          // Cyan (Inky): Flanking - uses offset from player
-          let targetX = this.playerGridX;
-          let targetY = this.playerGridY;
-          // Add offset based on player direction
-          if (this.playerDir.x !== 0) {
-            targetX -= this.playerDir.x * 2;
-          } else if (this.playerDir.y !== 0) {
-            targetY -= this.playerDir.y * 2;
+          // Use current direction if moving, otherwise patrol top-left area
+          if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
+            targetX += this.playerDir.x * 4;
+            targetY += this.playerDir.y * 4;
+          } else {
+            // Player stopped - patrol top area
+            targetX = this.playerGridX < 14 ? this.playerGridX - 4 : this.playerGridX + 4;
+            targetY = Math.max(1, this.playerGridY - 3);
           }
-          ghost.targetGridX = Math.max(0, Math.min(this.maze[0].length - 1, targetX));
-          ghost.targetGridY = Math.max(0, Math.min(this.maze.length - 1, targetY));
+          ghost.targetGridX = Math.max(1, Math.min(this.maze[0].length - 2, targetX));
+          ghost.targetGridY = Math.max(1, Math.min(this.maze.length - 2, targetY));
+        } else if (ghost.name === 'cyan') {
+          // Cyan (Inky): Patroller - targets corners/sides to cut off player
+          const playerInLeftHalf = this.playerGridX < 14;
+          const playerInTopHalf = this.playerGridY < 15;
+
+          if (playerInLeftHalf && playerInTopHalf) {
+            ghost.targetGridX = this.maze[0].length - 3;
+            ghost.targetGridY = 3;
+          } else if (!playerInLeftHalf && playerInTopHalf) {
+            ghost.targetGridX = 3;
+            ghost.targetGridY = 3;
+          } else if (playerInLeftHalf && !playerInTopHalf) {
+            ghost.targetGridX = this.maze[0].length - 3;
+            ghost.targetGridY = this.maze.length - 3;
+          } else {
+            ghost.targetGridX = 3;
+            ghost.targetGridY = this.maze.length - 3;
+          }
         } else if (ghost.name === 'orange') {
-          // Orange (Clyde): Shy - chases when far, scatters when close
+          // Orange (Clyde): Random patrol - picks random accessible areas
           const dist = Math.abs(ghost.gridX - this.playerGridX) + Math.abs(ghost.gridY - this.playerGridY);
           if (dist > 8) {
             // Far away - chase player
             ghost.targetGridX = this.playerGridX;
             ghost.targetGridY = this.playerGridY;
           } else {
-            // Close - scatter to corner
-            const corners = [
-              { x: 1, y: this.maze.length - 2 },
-              { x: this.maze[0].length - 2, y: this.maze.length - 2 },
-            ];
-            const corner = corners[Math.floor(this.rng.next() * corners.length)];
-            ghost.targetGridX = corner.x;
-            ghost.targetGridY = corner.y;
+            // Close - scatter to random corner
+            if (atCenter) {
+              const corners = [
+                { x: 1, y: 1 },
+                { x: this.maze[0].length - 2, y: 1 },
+                { x: 1, y: this.maze.length - 2 },
+                { x: this.maze[0].length - 2, y: this.maze.length - 2 },
+              ];
+              const corner = corners[Math.floor(this.rng.next() * corners.length)];
+              ghost.targetGridX = corner.x;
+              ghost.targetGridY = corner.y;
+            }
           }
         }
       }
