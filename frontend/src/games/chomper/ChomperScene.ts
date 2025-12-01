@@ -16,7 +16,7 @@ const CONFIG = {
   POWER_DECREASE_PER_LEVEL: 500,
 };
 
-// Multiple maze layouts (28x29 grid) - cycles through levels
+// Multiple maze layouts (28x31 grid) - cycles through levels
 const MAZES = [
   // Maze 1: Classic Pac-Man style
   [
@@ -48,7 +48,9 @@ const MAZES = [
     '###.##.##.########.##.##.###',
     '#......##....##....##......#',
     '#.##########.##.##########.#',
+    '#.##########.##.##########.#',
     '#..........................#',
+    '############################',
   ],
 
   // Maze 2: Open corridors with central chamber
@@ -80,7 +82,9 @@ const MAZES = [
     '#.###.####.####.####.###.#',
     '#..........................#',
     '#.########.####.########.#',
+    '#.########.####.########.#',
     '#o........................o#',
+    '############################',
   ],
 
   // Maze 3: Zigzag tunnels
@@ -112,7 +116,9 @@ const MAZES = [
     '#.##.######.####.######.##.#',
     '#o..........####..........o#',
     '##########.######.##########',
+    '##########.######.##########',
     '#..........................#',
+    '############################',
   ],
 ];
 
@@ -543,12 +549,24 @@ export class ChomperScene extends Phaser.Scene {
 
       // Check if ghost needs to exit house first
       if (!ghost.exitedHouse) {
-        // Move to exit position (gridY 11, gridX 14)
-        ghost.targetGridX = 14;
-        ghost.targetGridY = 11;
-        // Mark as exited once they reach the exit position
-        if (ghost.gridY === 11) {
-          ghost.exitedHouse = true;
+        // Move to exit position and a few tiles away before starting normal behavior
+        const exitY = 11;
+        const exitX = 14;
+
+        // First, get to exit Y position
+        if (ghost.gridY > exitY) {
+          ghost.targetGridX = exitX;
+          ghost.targetGridY = exitY;
+        } else if (ghost.gridY === exitY) {
+          // At exit level - move up a few more tiles before marking as exited
+          ghost.targetGridX = exitX;
+          ghost.targetGridY = exitY - 2;
+          if (ghost.gridY <= exitY - 2) {
+            ghost.exitedHouse = true;
+          }
+        } else {
+          ghost.targetGridX = exitX;
+          ghost.targetGridY = ghost.gridY - 1;
         }
       } else if (ghost.eaten) {
         // Return home when eaten
@@ -577,20 +595,65 @@ export class ChomperScene extends Phaser.Scene {
           }
         }
       } else {
-        // Normal mode: always chase player
-        ghost.targetGridX = this.playerGridX;
-        ghost.targetGridY = this.playerGridY;
+        // Normal mode: each ghost has different targeting behavior
+        if (ghost.name === 'red') {
+          // Red (Blinky): Direct chase - targets player's current position
+          ghost.targetGridX = this.playerGridX;
+          ghost.targetGridY = this.playerGridY;
+        } else if (ghost.name === 'pink') {
+          // Pink (Pinky): Ambush - targets 3 tiles ahead of player
+          let targetX = this.playerGridX;
+          let targetY = this.playerGridY;
+          if (this.playerDir.x !== 0) targetX += this.playerDir.x * 3;
+          if (this.playerDir.y !== 0) targetY += this.playerDir.y * 3;
+          ghost.targetGridX = Math.max(0, Math.min(this.maze[0].length - 1, targetX));
+          ghost.targetGridY = Math.max(0, Math.min(this.maze.length - 1, targetY));
+        } else if (ghost.name === 'cyan') {
+          // Cyan (Inky): Flanking - uses offset from player
+          let targetX = this.playerGridX;
+          let targetY = this.playerGridY;
+          // Add offset based on player direction
+          if (this.playerDir.x !== 0) {
+            targetX -= this.playerDir.x * 2;
+          } else if (this.playerDir.y !== 0) {
+            targetY -= this.playerDir.y * 2;
+          }
+          ghost.targetGridX = Math.max(0, Math.min(this.maze[0].length - 1, targetX));
+          ghost.targetGridY = Math.max(0, Math.min(this.maze.length - 1, targetY));
+        } else if (ghost.name === 'orange') {
+          // Orange (Clyde): Shy - chases when far, scatters when close
+          const dist = Math.abs(ghost.gridX - this.playerGridX) + Math.abs(ghost.gridY - this.playerGridY);
+          if (dist > 8) {
+            // Far away - chase player
+            ghost.targetGridX = this.playerGridX;
+            ghost.targetGridY = this.playerGridY;
+          } else {
+            // Close - scatter to corner with some randomness
+            const corners = [
+              { x: 1, y: 1 },
+              { x: this.maze[0].length - 2, y: 1 },
+              { x: 1, y: this.maze.length - 2 },
+              { x: this.maze[0].length - 2, y: this.maze.length - 2 },
+            ];
+            const corner = corners[Math.floor(this.rng.next() * corners.length)];
+            ghost.targetGridX = corner.x;
+            ghost.targetGridY = corner.y;
+          }
+        }
       }
 
       // Calculate direction to target
       const dx = ghost.targetGridX - ghost.gridX;
       const dy = ghost.targetGridY - ghost.gridY;
 
-      // Choose best direction - always try to move towards target
+      // Choose best direction with some randomness to prevent perfect stacking
       let moveDir = { x: 0, y: 0 };
 
-      // If at target, pick a random direction to keep moving
-      if (dx === 0 && dy === 0 && !ghost.frightened && !ghost.eaten && ghost.exitedHouse) {
+      // 20% chance to pick a random valid direction instead of optimal (adds variety)
+      const useRandom = !ghost.exitedHouse || this.rng.next() < 0.2;
+
+      if (useRandom) {
+        // Pick any valid direction randomly
         const dirs = [
           { x: 1, y: 0 },
           { x: -1, y: 0 },
@@ -601,19 +664,22 @@ export class ChomperScene extends Phaser.Scene {
         if (validDirs.length > 0) {
           moveDir = validDirs[Math.floor(this.rng.next() * validDirs.length)];
         }
-      } else if (Math.abs(dx) > Math.abs(dy)) {
-        // Try horizontal first
-        if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
-          moveDir.x = Math.sign(dx);
-        } else if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
-          moveDir.y = Math.sign(dy);
-        }
       } else {
-        // Try vertical first
-        if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
-          moveDir.y = Math.sign(dy);
-        } else if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
-          moveDir.x = Math.sign(dx);
+        // Normal pathfinding towards target
+        if (Math.abs(dx) > Math.abs(dy)) {
+          // Try horizontal first
+          if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
+            moveDir.x = Math.sign(dx);
+          } else if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
+            moveDir.y = Math.sign(dy);
+          }
+        } else {
+          // Try vertical first
+          if (dy !== 0 && this.canMoveTo(ghost.gridX, ghost.gridY + Math.sign(dy))) {
+            moveDir.y = Math.sign(dy);
+          } else if (dx !== 0 && this.canMoveTo(ghost.gridX + Math.sign(dx), ghost.gridY)) {
+            moveDir.x = Math.sign(dx);
+          }
         }
       }
 
