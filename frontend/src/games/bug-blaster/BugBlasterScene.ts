@@ -320,11 +320,12 @@ export class BugBlasterScene extends Phaser.Scene {
     }
     spider.fillCircle(0, 0, 6);
 
+    const spawnLeft = this.rng.next() > 0.5;
     this.spider = {
       graphics: spider,
-      x: this.rng.next() > 0.5 ? 0 : this.scale.width,
+      x: spawnLeft ? 0 : this.scale.width,
       y: this.scale.height - 100,
-      vx: this.rng.next() > 0.5 ? CONFIG.SPIDER_SPEED : -CONFIG.SPIDER_SPEED,
+      vx: spawnLeft ? CONFIG.SPIDER_SPEED : -CONFIG.SPIDER_SPEED, // Always move toward center
       vy: this.rng.nextFloat(-50, 50),
     };
   }
@@ -410,6 +411,7 @@ export class BugBlasterScene extends Phaser.Scene {
           this.bullets.splice(i, 1);
           this.spider.graphics.destroy();
           this.spider = null;
+          this.spiderTimer = 0; // Reset timer to prevent instant respawn
           this.score += CONFIG.SPIDER_POINTS;
           this.onScoreUpdate(this.score);
         }
