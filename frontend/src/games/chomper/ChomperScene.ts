@@ -3,9 +3,9 @@ import { SeededRNG } from '../engine/SeededRNG';
 
 const CONFIG = {
   TILE_SIZE: 21,
-  PLAYER_SPEED: 5, // Grid squares per second
-  GHOST_SPEED: 4,
-  FRIGHTENED_SPEED: 2.5,
+  PLAYER_MOVE_DELAY: 200, // Milliseconds between moves (5 tiles/sec)
+  GHOST_MOVE_DELAY: 250, // Milliseconds between moves (4 tiles/sec)
+  FRIGHTENED_MOVE_DELAY: 400, // Milliseconds between moves (2.5 tiles/sec)
   PELLET_POINTS: 5,
   POWER_PELLET_POINTS: 25,
   GHOST_POINTS: 100,
@@ -303,6 +303,7 @@ interface Ghost {
   exitedHouse: boolean;
   dirX: number;
   dirY: number;
+  moveTimer: number;
 }
 
 export class ChomperScene extends Phaser.Scene {
@@ -329,6 +330,7 @@ export class ChomperScene extends Phaser.Scene {
   private playerDir: { x: number; y: number } = { x: 0, y: 0 };
   private nextDir: { x: number; y: number } = { x: 0, y: 0 };
   private mouthAngle: number = 0;
+  private playerMoveTimer: number = 0;
 
   private ghosts: Ghost[] = [];
   private powered: boolean = false;
@@ -450,6 +452,7 @@ export class ChomperScene extends Phaser.Scene {
         exitedHouse: data.exitedHouse,
         dirX: 0,
         dirY: 0,
+        moveTimer: 0,
       });
     }
 
@@ -652,6 +655,9 @@ export class ChomperScene extends Phaser.Scene {
   }
 
   movePlayer(dt: number): void {
+    // Update move timer
+    this.playerMoveTimer += dt * 1000;
+
     // Try to turn
     const nextGridX = this.playerGridX + this.nextDir.x;
     const nextGridY = this.playerGridY + this.nextDir.y;
@@ -659,17 +665,20 @@ export class ChomperScene extends Phaser.Scene {
       this.playerDir = { ...this.nextDir };
     }
 
-    // Move
-    if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
-      const targetGridX = this.playerGridX + this.playerDir.x;
-      const targetGridY = this.playerGridY + this.playerDir.y;
+    // Move only when timer allows
+    if (this.playerMoveTimer >= CONFIG.PLAYER_MOVE_DELAY) {
+      if (this.playerDir.x !== 0 || this.playerDir.y !== 0) {
+        const targetGridX = this.playerGridX + this.playerDir.x;
+        const targetGridY = this.playerGridY + this.playerDir.y;
 
-      if (this.canPlayerMoveTo(targetGridX, targetGridY)) {
-        this.playerGridX = targetGridX;
-        this.playerGridY = targetGridY;
-        this.checkPelletCollision();
-      } else {
-        this.playerDir = { x: 0, y: 0 };
+        if (this.canPlayerMoveTo(targetGridX, targetGridY)) {
+          this.playerGridX = targetGridX;
+          this.playerGridY = targetGridY;
+          this.checkPelletCollision();
+          this.playerMoveTimer = 0;
+        } else {
+          this.playerDir = { x: 0, y: 0 };
+        }
       }
     }
 
@@ -681,6 +690,19 @@ export class ChomperScene extends Phaser.Scene {
   moveGhosts(dt: number): void {
     for (const ghost of this.ghosts) {
       if (!ghost.released) continue;
+
+      // Update move timer
+      ghost.moveTimer += dt * 1000;
+
+      // Determine move delay based on state
+      const moveDelay = ghost.frightened
+        ? CONFIG.FRIGHTENED_MOVE_DELAY
+        : CONFIG.GHOST_MOVE_DELAY;
+
+      // Move only when timer allows
+      if (ghost.moveTimer < moveDelay) continue;
+
+      ghost.moveTimer = 0;
 
       // Determine target
       if (!ghost.exitedHouse) {
@@ -818,6 +840,7 @@ export class ChomperScene extends Phaser.Scene {
       this.playerGridX = this.mazeData.playerStart.x;
       this.playerGridY = this.mazeData.playerStart.y;
       this.playerDir = { x: 0, y: 0 };
+      this.playerMoveTimer = 0;
       this.powered = false;
 
       this.ghosts.forEach((g, i) => {
@@ -829,6 +852,7 @@ export class ChomperScene extends Phaser.Scene {
         g.eaten = false;
         g.dirX = 0;
         g.dirY = 0;
+        g.moveTimer = 0;
       });
 
       this.paused = true;
