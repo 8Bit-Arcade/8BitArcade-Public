@@ -6,12 +6,15 @@ const CONFIG = {
   GRAVITY: 800,
   FLAP_VELOCITY: -300,
   PIPE_SPEED: 150,
-  PIPE_SPAWN_INTERVAL: 2000,
+  PIPE_SPAWN_INTERVAL_START: 2800,
+  PIPE_SPAWN_INTERVAL_MIN: 1600,
   PIPE_WIDTH: 60,
-  PIPE_GAP: 140,
+  PIPE_GAP_START: 200,
+  PIPE_GAP_MIN: 110,
   PIPE_MIN_HEIGHT: 80,
   PIPE_MAX_HEIGHT: 300,
   POINTS_PER_PIPE: 1,
+  DIFFICULTY_INCREASE_RATE: 0.015, // How fast difficulty increases per point
 };
 
 interface Pipe {
@@ -19,6 +22,7 @@ interface Pipe {
   bottomGraphics: Phaser.GameObjects.Graphics;
   x: number;
   gapY: number;
+  gapSize: number;
   scored: boolean;
 }
 
@@ -46,8 +50,10 @@ export class FlappyBirdScene extends Phaser.Scene {
   private lastFlap: boolean = false;
 
   private backgroundGraphics!: Phaser.GameObjects.Graphics;
+  private cloudGraphics!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
   private groundOffset: number = 0;
+  private cloudPositions: Array<{ x: number; y: number }> = [];
 
   constructor(
     onScoreUpdate: (score: number) => void,
@@ -71,6 +77,19 @@ export class FlappyBirdScene extends Phaser.Scene {
     // Draw background (sky)
     this.backgroundGraphics = this.add.graphics();
     this.drawBackground();
+
+    // Create static cloud positions
+    this.cloudPositions = [
+      { x: 60, y: 80 },
+      { x: 200, y: 120 },
+      { x: 340, y: 60 },
+      { x: 120, y: 180 },
+      { x: 280, y: 150 },
+    ];
+
+    // Draw clouds (once, static)
+    this.cloudGraphics = this.add.graphics();
+    this.drawClouds();
 
     // Draw ground
     this.groundGraphics = this.add.graphics();
@@ -114,12 +133,14 @@ export class FlappyBirdScene extends Phaser.Scene {
     // Sky gradient (light blue to darker blue)
     this.backgroundGraphics.fillStyle(0x4ec0ca, 1);
     this.backgroundGraphics.fillRect(0, 0, this.scale.width, this.scale.height);
+  }
 
-    // Clouds
-    for (let i = 0; i < 5; i++) {
-      const x = (i * 150 + this.groundOffset * 0.5) % (this.scale.width + 100);
-      const y = 50 + i * 40;
-      this.drawCloud(this.backgroundGraphics, x, y);
+  drawClouds(): void {
+    this.cloudGraphics.clear();
+
+    // Draw static clouds
+    for (const pos of this.cloudPositions) {
+      this.drawCloud(this.cloudGraphics, pos.x, pos.y);
     }
   }
 
@@ -196,9 +217,22 @@ export class FlappyBirdScene extends Phaser.Scene {
     this.bird.restore();
   }
 
+  getCurrentPipeGap(): number {
+    // Gradually decrease gap size based on score
+    const progress = Math.min(1, this.score * CONFIG.DIFFICULTY_INCREASE_RATE);
+    return CONFIG.PIPE_GAP_START - (CONFIG.PIPE_GAP_START - CONFIG.PIPE_GAP_MIN) * progress;
+  }
+
+  getCurrentSpawnInterval(): number {
+    // Gradually decrease spawn interval based on score
+    const progress = Math.min(1, this.score * CONFIG.DIFFICULTY_INCREASE_RATE);
+    return CONFIG.PIPE_SPAWN_INTERVAL_START - (CONFIG.PIPE_SPAWN_INTERVAL_START - CONFIG.PIPE_SPAWN_INTERVAL_MIN) * progress;
+  }
+
   spawnPipe(): void {
-    const minGapY = CONFIG.PIPE_MIN_HEIGHT + CONFIG.PIPE_GAP / 2;
-    const maxGapY = this.scale.height - 80 - CONFIG.PIPE_MIN_HEIGHT - CONFIG.PIPE_GAP / 2;
+    const currentGap = this.getCurrentPipeGap();
+    const minGapY = CONFIG.PIPE_MIN_HEIGHT + currentGap / 2;
+    const maxGapY = this.scale.height - 80 - CONFIG.PIPE_MIN_HEIGHT - currentGap / 2;
     const gapY = minGapY + this.rng.next() * (maxGapY - minGapY);
 
     const topGraphics = this.add.graphics();
@@ -209,6 +243,7 @@ export class FlappyBirdScene extends Phaser.Scene {
       bottomGraphics,
       x: this.scale.width,
       gapY,
+      gapSize: currentGap,
       scored: false,
     });
 
@@ -220,8 +255,8 @@ export class FlappyBirdScene extends Phaser.Scene {
     pipe.bottomGraphics.clear();
 
     const groundY = this.scale.height - 80;
-    const topHeight = pipe.gapY - CONFIG.PIPE_GAP / 2;
-    const bottomY = pipe.gapY + CONFIG.PIPE_GAP / 2;
+    const topHeight = pipe.gapY - pipe.gapSize / 2;
+    const bottomY = pipe.gapY + pipe.gapSize / 2;
     const bottomHeight = groundY - bottomY;
 
     // Top pipe
@@ -265,7 +300,7 @@ export class FlappyBirdScene extends Phaser.Scene {
     if (!this.gameStarted) {
       this.gameStarted = true;
       this.instructionText.setVisible(false);
-      this.pipeSpawnTimer = CONFIG.PIPE_SPAWN_INTERVAL;
+      this.pipeSpawnTimer = CONFIG.PIPE_SPAWN_INTERVAL_START;
     }
     this.birdVelocity = CONFIG.FLAP_VELOCITY;
   }
@@ -290,8 +325,8 @@ export class FlappyBirdScene extends Phaser.Scene {
 
       // Check if bird is horizontally aligned with pipe
       if (birdRight > pipeLeft && birdLeft < pipeRight) {
-        const topPipeBottom = pipe.gapY - CONFIG.PIPE_GAP / 2;
-        const bottomPipeTop = pipe.gapY + CONFIG.PIPE_GAP / 2;
+        const topPipeBottom = pipe.gapY - pipe.gapSize / 2;
+        const bottomPipeTop = pipe.gapY + pipe.gapSize / 2;
 
         // Check if bird hit top or bottom pipe
         if (birdTop < topPipeBottom || birdBottom > bottomPipeTop) {
@@ -334,13 +369,12 @@ export class FlappyBirdScene extends Phaser.Scene {
         this.groundOffset = 0;
       }
       this.drawGround();
-      this.drawBackground();
 
-      // Spawn pipes
+      // Spawn pipes with progressive difficulty
       this.pipeSpawnTimer -= delta;
       if (this.pipeSpawnTimer <= 0) {
         this.spawnPipe();
-        this.pipeSpawnTimer = CONFIG.PIPE_SPAWN_INTERVAL;
+        this.pipeSpawnTimer = this.getCurrentSpawnInterval();
       }
 
       // Update pipes
