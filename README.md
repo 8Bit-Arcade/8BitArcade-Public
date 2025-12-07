@@ -1,46 +1,164 @@
-# 8-Bit Arcade
+# 🎮 8-Bit Arcade
 
 > Play Classic Games. Compete Globally. Earn 8BIT Tokens.
 
-A blockchain-powered retro gaming platform built on Arbitrum One. Play classic 8-bit style arcade games, compete on global leaderboards, and earn 8BIT tokens.
+A blockchain-powered retro gaming platform built on Arbitrum. Play classic 8-bit style arcade games, compete on global leaderboards, and earn 8BIT tokens through skill-based gameplay.
 
-## Features
+## ✨ Features
 
-- **12+ Retro Games** - Classic arcade game clones (Centipede, Asteroids, Pac-Man, etc.)
-- **8BIT Token** - Native ERC-20 token for rewards and tournament entry
-- **Play Modes** - Free Play, Ranked (earn tokens), Tournament (compete for prizes)
-- **Leaderboards** - Per-game and global leaderboards with real-time updates
-- **Tournaments** - Admin-created competitions with automated prize distribution
-- **Anti-Cheat** - Server-side score validation via game replay verification
-- **Mobile Support** - Responsive design with touch controls (PWA)
+- **12 Retro Games** - Fully playable classic arcade game clones
+- **Free to Play** - No cost to play, earn tokens through skill
+- **Two-Tier Tournaments** - Standard ($1-$5) and High Roller ($5-$25) entry levels
+- **Daily Rewards** - Top 10 players per game earn tokens every day
+- **Global Leaderboards** - Real-time daily, weekly, and all-time rankings
+- **Token Faucet (Testnet)** - Get free test tokens to try everything
+- **Mobile Support** - Responsive design with touch controls
+- **Anti-Cheat** - Server-side replay verification
+- **Arbitrum L2** - Low gas fees, fast transactions
 
-## Tech Stack
+## 🎯 Current Status
 
-- **Frontend**: Next.js 14, TypeScript, TailwindCSS, Phaser 3
-- **Wallet**: RainbowKit, wagmi v2, viem
-- **Backend**: Firebase (Auth, Firestore, Functions)
-- **Blockchain**: Arbitrum One, Solidity, Foundry
-- **Audio**: Howler.js
+**Phase Status:** ✅ Games Complete | 🚧 Smart Contracts Ready | 📋 Tokenomics Finalized
 
-## Project Structure
+### Completed:
+- ✅ 12 fully functional arcade games
+- ✅ Wallet integration (RainbowKit + wagmi)
+- ✅ Firebase leaderboards and authentication
+- ✅ Username/ENS support
+- ✅ Smart contracts (testnet ready)
+- ✅ Tokenomics model (see TOKENOMICS_PROPOSAL.md)
+- ✅ Token sale infrastructure
+- ✅ Testnet faucet system
+
+### In Progress:
+- 🚧 Tournament system (two-tier structure)
+- 🚧 Token distribution automation
+- 🚧 Staking mechanics
+
+### Coming Soon:
+- 📋 Testnet deployment
+- 📋 Public token sale ($50K raise)
+- 📋 Mainnet launch
+- 📋 DAO governance
+
+## 💰 Token Economics
+
+**8BIT Token on Arbitrum**
+
+- **Total Supply**: 1,000,000,000 (1 Billion)
+- **Initial Price**: $0.0005
+- **Market Cap (FDV)**: $500,000
+- **Public Sale**: 10% (100M tokens, $50K raise)
+- **Community Rewards**: 45% (450M over 10 years)
+- **Liquidity**: 20% (200M locked 3 years)
+
+### Distribution:
+| Category | Allocation | Tokens |
+|----------|-----------|--------|
+| Community Rewards | 45% | 450M |
+| Liquidity Pool | 20% | 200M |
+| Founders | 15% | 150M |
+| Public Sale | 10% | 100M |
+| Ecosystem | 10% | 100M |
+
+**See [TOKENOMICS_PROPOSAL.md](TOKENOMICS_PROPOSAL.md) for full details**
+
+## 🏆 Tournament System
+
+### Two-Tier Structure:
+
+**Standard Tier** (Accessible)
+- Weekly: 2,000 8BIT ($1) entry, 50,000 8BIT ($25) prize
+- Monthly: 10,000 8BIT ($5) entry, 100,000 8BIT ($50) prize
+
+**High Roller Tier** (Premium)
+- Weekly: 10,000 8BIT ($5) entry, 150,000 8BIT ($75) prize
+- Monthly: 50,000 8BIT ($25) entry, 500,000 8BIT ($250) prize
+
+**Free Daily Rewards:**
+- Top 10 per game earn 280-1,250 tokens/day
+- No entry fee required
+
+## 🎮 Games
+
+| Game | Clone Of | Difficulty | Status |
+|------|----------|------------|--------|
+| Space Rocks | Asteroids | Medium | ✅ Live |
+| Alien Assault | Space Invaders | Easy | ✅ Live |
+| Brick Breaker | Breakout | Easy | ✅ Live |
+| Pixel Snake | Snake | Easy | ✅ Live |
+| Bug Blaster | Centipede | Hard | ✅ Live |
+| Chomper | Pac-Man | Medium | ✅ Live |
+| Flappy Bird | Flappy Bird | Medium | ✅ Live |
+| Galaxy Fighter | Galaga | Medium | ✅ Live |
+| Road Hopper | Frogger | Easy | ✅ Live |
+| Missile Command | Missile Command | Hard | ✅ Live |
+| Block Drop | Tetris | Medium | ✅ Live |
+| Paddle Battle | Pong | Easy | ✅ Live |
+
+All games feature:
+- 8-bit retro graphics
+- Progressive difficulty
+- Seeded RNG for fairness
+- Touch controls for mobile
+- Real-time leaderboards
+
+## 🛠️ Tech Stack
+
+### Frontend
+- Next.js 15.5.7
+- TypeScript
+- TailwindCSS
+- Phaser 3 (game engine)
+- RainbowKit + wagmi v2
+
+### Blockchain
+- Arbitrum (Sepolia testnet, One mainnet)
+- Solidity 0.8.20
+- Hardhat
+- OpenZeppelin contracts
+
+### Backend
+- Firebase Authentication
+- Firestore Database
+- Cloud Functions
+- Ethers.js for contract interaction
+
+### Audio
+- Howler.js
+
+## 📂 Project Structure
 
 ```
 8BitArcade/
-├── frontend/           # Next.js web application
-├── backend/            # Firebase Cloud Functions (coming soon)
-├── contracts/          # Solidity smart contracts (coming soon)
-├── docs/               # Technical documentation
-│   └── TECHNICAL_SPECIFICATION.md
+├── frontend/               # Next.js web application
+│   ├── src/
+│   │   ├── app/           # Next.js app router pages
+│   │   ├── components/    # React components
+│   │   ├── games/         # Phaser game scenes
+│   │   ├── config/        # Contract addresses, network config
+│   │   ├── hooks/         # React hooks
+│   │   └── lib/           # Utilities, Firebase, wagmi
+│   └── public/            # Static assets
+├── contracts/             # Smart contracts
+│   ├── contracts/        # Solidity files
+│   ├── scripts/          # Deployment scripts
+│   └── README.md         # Deployment guide
+├── functions/             # Firebase Cloud Functions
+│   └── src/
+│       └── rewards/      # Daily reward distribution
+├── TOKENOMICS_PROPOSAL.md  # Complete tokenomics
+├── SMART_CONTRACTS_GUIDE.md # Quick start guide
 └── README.md
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
 - npm or yarn
-- MetaMask or compatible wallet
+- MetaMask or compatible Web3 wallet
 
 ### Frontend Setup
 
@@ -48,75 +166,142 @@ A blockchain-powered retro gaming platform built on Arbitrum One. Play classic 8
 cd frontend
 npm install
 cp .env.example .env.local
-# Edit .env.local with your configuration
+# Edit .env.local with your Firebase & WalletConnect config
 npm run dev
 ```
 
-### Environment Variables
+Visit http://localhost:3000
 
-Copy `.env.example` to `.env.local` and fill in:
+### Smart Contracts Setup
 
+```bash
+cd contracts
+npm install
+cp .env.example .env
+# Edit .env with your private key and Arbiscan API key
+npm run deploy:testnet
+```
+
+See [SMART_CONTRACTS_GUIDE.md](SMART_CONTRACTS_GUIDE.md) for detailed instructions.
+
+## 📋 Configuration Files
+
+### Key Configuration:
+
+**`frontend/src/config/contracts.ts`** - Contract addresses and network settings
+- Set `USE_TESTNET = true` for Arbitrum Sepolia
+- Set `USE_TESTNET = false` for Arbitrum mainnet
+- Update contract addresses after deployment
+
+**`contracts/.env`** - Deployment credentials (never commit!)
+- PRIVATE_KEY - Deployer wallet
+- ARBISCAN_API_KEY - For verification
+
+**`frontend/.env.local`** - Frontend environment
 - Firebase configuration
 - WalletConnect project ID
-- Contract addresses (after deployment)
 
-## Development Phases
+## 🧪 Testnet Testing
 
-- [x] **Phase 1**: Foundation (Next.js, wallet connection, UI)
-- [ ] **Phase 2**: Game Engine & First Games
-- [ ] **Phase 3**: Anti-Cheat & Leaderboards
-- [ ] **Phase 4**: More Games
-- [ ] **Phase 5**: Smart Contracts
-- [ ] **Phase 6**: Token Integration
-- [ ] **Phase 7**: Tournament System
-- [ ] **Phase 8**: Polish & Launch
+1. **Get testnet ETH**: https://faucet.quicknode.com/arbitrum/sepolia
+2. **Connect wallet** to Arbitrum Sepolia
+3. **Claim test tokens** from faucet (10,000 8BIT per 24h)
+4. **Play games** and earn daily rewards
+5. **Test tournaments** (both tiers)
+6. **Provide feedback**
 
-## Token Economics
+## 📊 Development Phases
 
-- **Symbol**: 8BIT
-- **Network**: Arbitrum One
-- **Total Supply**: 100,000,000 8BIT
+### Completed ✅
+- [x] Phase 1: Next.js foundation & wallet integration
+- [x] Phase 2: 12 retro games with Phaser 3
+- [x] Phase 3: Firebase backend & leaderboards
+- [x] Phase 4: Anti-cheat system
+- [x] Phase 5: Smart contract development
+- [x] Phase 6: Tokenomics design
 
-See [Technical Specification](docs/TECHNICAL_SPECIFICATION.md) for full details.
+### Current 🚧
+- [ ] Phase 7: Tournament system infrastructure
+- [ ] Phase 8: Token sale application
+- [ ] Phase 9: Testnet deployment & testing
 
-## Games
+### Upcoming 📋
+- [ ] Phase 10: Public token sale
+- [ ] Phase 11: Mainnet deployment
+- [ ] Phase 12: Marketing & growth
+- [ ] Phase 13: DAO governance
+- [ ] Phase 14: Additional games
 
-| Game | Clone Of | Difficulty |
-|------|----------|------------|
-| Space Rocks | Asteroids | Medium |
-| Alien Assault | Space Invaders | Easy |
-| Bug Blaster | Centipede | Hard |
-| Chomper | Pac-Man | Medium |
-| Tunnel Terror | Dig Dug | Medium |
-| Galaxy Fighter | Galaga | Medium |
-| Road Hopper | Frogger | Easy |
-| Barrel Dodge | Donkey Kong | Hard |
-| Brick Breaker | Breakout | Easy |
-| Pixel Snake | Snake | Easy |
-| Block Drop | Tetris | Medium |
-| Paddle Battle | Pong | Easy |
+## 🔐 Security
 
-## Game Screenshots
+- **Anti-Cheat**: Server-side game replay verification
+- **Rate Limiting**: Prevents spam and abuse
+- **Vesting**: 2-year founder vesting
+- **Liquidity Lock**: 3-year minimum lock
+- **Burn Mechanisms**: 50% of tournament fees burned
+- **Audits**: Planned before mainnet launch
 
-frontend/public/games/
+## 🌐 Network
 
-├── space-rocks.png
-├── alien-assault.png
-├── brick-breaker.png
-├── pixel-snake.png
-├── bug-blaster.png
-├── chomper.png
-├── tunnel-terror.png
-├── galaxy-fighter.png
-├── road-hopper.png
-├── barrel-dodge.png
-├── block-drop.png
-└── paddle-battle.png
+**Current**: Arbitrum Sepolia (testnet)
+**Launch**: Arbitrum One (mainnet)
 
-## License
+Why Arbitrum?
+- Ultra-low gas fees (~$0.01 per transaction)
+- Fast finality (< 1 second)
+- Full Ethereum security
+- Growing DeFi ecosystem
+
+## 📚 Documentation
+
+- [TOKENOMICS_PROPOSAL.md](TOKENOMICS_PROPOSAL.md) - Complete token economics
+- [SMART_CONTRACTS_GUIDE.md](SMART_CONTRACTS_GUIDE.md) - Contract deployment
+- [contracts/README.md](contracts/README.md) - Detailed contract docs
+- [TECHNICAL_SPECIFICATION.md](docs/TECHNICAL_SPECIFICATION.md) - Tech specs
+
+## 🤝 Contributing
+
+This is a 2-person project currently in active development. Community contributions welcome after mainnet launch!
+
+## 📞 Links
+
+- **Website**: Coming soon
+- **Discord**: Coming soon
+- **Twitter**: Coming soon
+- **Docs**: In this repository
+
+## 🎯 Roadmap
+
+**Q1 2025**
+- ✅ Complete all 12 games
+- ✅ Finalize tokenomics
+- 🚧 Build tournament system
+- 📋 Deploy to testnet
+- 📋 Community testing (3-6 months)
+
+**Q2 2025**
+- 📋 Public token sale
+- 📋 Mainnet deployment
+- 📋 Marketing campaign
+- 📋 First high roller tournament
+
+**Q3-Q4 2025**
+- 📋 DAO governance launch
+- 📋 Staking system
+- 📋 Additional games
+- 📋 Mobile app (PWA)
+- 📋 Partnerships & integrations
+
+## ⚖️ License
 
 MIT License - see LICENSE for details.
 
+## ⚠️ Disclaimer
+
+8-Bit Arcade is a skill-based gaming platform. Cryptocurrency values can be volatile. Play responsibly and never invest more than you can afford to lose. Always DYOR (Do Your Own Research).
+
 ---
 
-Built with retro love by the 8-Bit Arcade team.
+**Built with retro love on Arbitrum** 🎮
+
+*Bringing 8-bit nostalgia to the blockchain era*
