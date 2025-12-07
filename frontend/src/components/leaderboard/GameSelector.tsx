@@ -13,7 +13,7 @@ const GAMES: Game[] = [
   { id: 'pixel-snake', name: 'PIXEL SNAKE' },
   { id: 'bug-blaster', name: 'BUG BLASTER' },
   { id: 'chomper', name: 'CHOMPER' },
-  { id: 'tunnel-terror', name: 'TUNNEL TERROR' },
+  { id: 'flappy-bird', name: 'FLAPPY BIRD' },
   { id: 'galaxy-fighter', name: 'GALAXY FIGHTER' },
   { id: 'road-hopper', name: 'ROAD HOPPER' },
   { id: 'missile-command', name: 'MISSILE COMMAND' },
