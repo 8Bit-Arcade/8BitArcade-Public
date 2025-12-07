@@ -96,13 +96,13 @@ const GAMES = [
     category: 'action' as GameCategory,
   },
   {
-    id: 'barrel-dodge',
-    name: 'Barrel Dodge',
-    description: 'Climb to the top while dodging barrels',
+    id: 'missile-command',
+    name: 'Missile Command',
+    description: 'Defend cities from incoming missiles',
     difficulty: 'hard' as const,
-    thumbnail: '/games/barrel-dodge.png',
+    thumbnail: '/games/missile-command.png',
     playable: true,
-    category: 'action' as GameCategory,
+    category: 'shooter' as GameCategory,
   },
   {
     id: 'block-drop',
