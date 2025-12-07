@@ -66,7 +66,7 @@ interface Explosion {
   graphics: Phaser.GameObjects.Graphics;
 }
 
-export class BarrelDodgeScene extends Phaser.Scene {
+export class MissileCommandScene extends Phaser.Scene {
   private onScoreUpdate: (score: number) => void;
   private onGameOver: (finalScore: number) => void;
   private getDirection: () => { up: boolean; down: boolean; left: boolean; right: boolean };
@@ -101,7 +101,7 @@ export class BarrelDodgeScene extends Phaser.Scene {
     getAction: () => boolean,
     seed: number
   ) {
-    super({ key: 'BarrelDodgeScene' });
+    super({ key: 'MissileCommandScene' });
     this.onScoreUpdate = onScoreUpdate;
     this.onGameOver = onGameOver;
     this.getDirection = getDirection;
