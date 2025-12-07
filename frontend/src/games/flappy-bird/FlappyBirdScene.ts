@@ -5,7 +5,8 @@ const CONFIG = {
   BIRD_X: 100,
   GRAVITY: 800,
   FLAP_VELOCITY: -300,
-  PIPE_SPEED: 150,
+  PIPE_SPEED_START: 150,
+  PIPE_SPEED_MAX: 280,
   PIPE_SPAWN_INTERVAL_START: 2800,
   PIPE_SPAWN_INTERVAL_MIN: 1600,
   PIPE_WIDTH: 60,
@@ -229,6 +230,12 @@ export class FlappyBirdScene extends Phaser.Scene {
     return CONFIG.PIPE_SPAWN_INTERVAL_START - (CONFIG.PIPE_SPAWN_INTERVAL_START - CONFIG.PIPE_SPAWN_INTERVAL_MIN) * progress;
   }
 
+  getCurrentPipeSpeed(): number {
+    // Gradually increase pipe speed based on score
+    const progress = Math.min(1, this.score * CONFIG.DIFFICULTY_INCREASE_RATE);
+    return CONFIG.PIPE_SPEED_START + (CONFIG.PIPE_SPEED_MAX - CONFIG.PIPE_SPEED_START) * progress;
+  }
+
   spawnPipe(): void {
     const currentGap = this.getCurrentPipeGap();
     const minGapY = CONFIG.PIPE_MIN_HEIGHT + currentGap / 2;
@@ -363,8 +370,11 @@ export class FlappyBirdScene extends Phaser.Scene {
       this.birdVelocity += CONFIG.GRAVITY * dt;
       this.birdY += this.birdVelocity * dt;
 
+      // Get current speed for progressive difficulty
+      const currentSpeed = this.getCurrentPipeSpeed();
+
       // Animate ground scrolling
-      this.groundOffset += CONFIG.PIPE_SPEED * dt;
+      this.groundOffset += currentSpeed * dt;
       if (this.groundOffset >= 10) {
         this.groundOffset = 0;
       }
@@ -380,7 +390,7 @@ export class FlappyBirdScene extends Phaser.Scene {
       // Update pipes
       for (let i = this.pipes.length - 1; i >= 0; i--) {
         const pipe = this.pipes[i];
-        pipe.x -= CONFIG.PIPE_SPEED * dt;
+        pipe.x -= currentSpeed * dt;
 
         // Score when bird passes pipe
         if (!pipe.scored && pipe.x + CONFIG.PIPE_WIDTH < CONFIG.BIRD_X) {
