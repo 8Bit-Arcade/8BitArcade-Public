@@ -69,13 +69,13 @@ const GAMES = [
     category: 'arcade' as GameCategory,
   },
   {
-    id: 'tunnel-terror',
-    name: 'Tunnel Terror',
-    description: 'Dig tunnels and defeat underground enemies',
+    id: 'flappy-bird',
+    name: 'Flappy Bird',
+    description: 'Tap to flap through pipes without crashing',
     difficulty: 'medium' as const,
-    thumbnail: '/games/tunnel-terror.png',
+    thumbnail: '/games/flappy-bird.png',
     playable: true,
-    category: 'action' as GameCategory,
+    category: 'arcade' as GameCategory,
   },
   {
     id: 'galaxy-fighter',
