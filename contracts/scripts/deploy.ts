@@ -6,6 +6,7 @@ import { ethers } from "hardhat";
  * This script deploys:
  * 1. EightBitToken (8BIT)
  * 2. GameRewards
+ * 3. TournamentManager
  *
  * And automatically links them together.
  *
@@ -16,7 +17,7 @@ import { ethers } from "hardhat";
  * 3. Run: npm run deploy:testnet
  * 4. Save the deployed contract addresses
  * 5. Update frontend/src/config/contracts.ts with the addresses
- * 6. Verify contracts: npm run verify:testnet <TOKEN_ADDRESS> <REWARDS_ADDRESS>
+ * 6. Verify contracts on Arbiscan
  */
 
 async function main() {
@@ -48,11 +49,29 @@ async function main() {
   console.log("✅ GameRewards deployed to:", rewardsAddress);
   console.log();
 
+  // Deploy TournamentManager
+  console.log("📝 Deploying TournamentManager...");
+  const TournamentManager = await ethers.getContractFactory("TournamentManager");
+  const tournaments = await TournamentManager.deploy(tokenAddress);
+  await tournaments.waitForDeployment();
+  const tournamentsAddress = await tournaments.getAddress();
+  console.log("✅ TournamentManager deployed to:", tournamentsAddress);
+  console.log();
+
   // Link contracts
   console.log("🔗 Linking contracts...");
   const tx = await token.setGameRewards(rewardsAddress);
   await tx.wait();
   console.log("✅ Contracts linked successfully");
+  console.log();
+
+  // Fund TournamentManager with tokens for prize pools
+  // Initially mint 10M tokens to TournamentManager for prizes
+  console.log("💰 Funding TournamentManager with prize pool tokens...");
+  const prizePoolAmount = ethers.parseEther("10000000"); // 10M tokens
+  const mintTx = await token.transfer(tournamentsAddress, prizePoolAmount);
+  await mintTx.wait();
+  console.log("✅ TournamentManager funded with", ethers.formatEther(prizePoolAmount), "8BIT");
   console.log();
 
   console.log("═══════════════════════════════════════════════════");
@@ -61,19 +80,23 @@ async function main() {
   console.log();
   console.log("EightBitToken (8BIT):", tokenAddress);
   console.log("GameRewards:", rewardsAddress);
+  console.log("TournamentManager:", tournamentsAddress);
   console.log("Deployer:", deployer.address);
   console.log();
   console.log("⚠️  IMPORTANT NEXT STEPS:");
   console.log("───────────────────────────────────────────────────");
   console.log("1. Save these addresses in frontend/src/config/contracts.ts");
-  console.log("2. Update TESTNET addresses in the config");
+  console.log("2. Update TESTNET_CONTRACTS or MAINNET_CONTRACTS accordingly");
   console.log("3. Set rewardsDistributor in GameRewards contract:");
   console.log("   - Create a secure backend wallet");
   console.log("   - Call: rewards.setRewardsDistributor(BACKEND_WALLET)");
-  console.log("4. Verify contracts on Arbiscan:");
+  console.log("4. Set tournamentManager in TournamentManager:");
+  console.log("   - Call: tournaments.setTournamentManager(BACKEND_WALLET)");
+  console.log("5. Verify contracts on Arbiscan:");
   console.log(`   npx hardhat verify --network arbitrumSepolia ${tokenAddress}`);
   console.log(`   npx hardhat verify --network arbitrumSepolia ${rewardsAddress} ${tokenAddress}`);
-  console.log("5. Add liquidity to DEX for 8BIT token trading");
+  console.log(`   npx hardhat verify --network arbitrumSepolia ${tournamentsAddress} ${tokenAddress}`);
+  console.log("6. Add liquidity to DEX for 8BIT token trading");
   console.log();
   console.log("For mainnet deployment, run: npm run deploy:mainnet");
   console.log("═══════════════════════════════════════════════════");
