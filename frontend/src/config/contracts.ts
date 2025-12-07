@@ -40,6 +40,7 @@ const TESTNET_CONTRACTS = {
   GAME_REWARDS: '0x0000000000000000000000000000000000000000',    // ← UPDATE: GameRewards address
   TOURNAMENT_MANAGER: '0x0000000000000000000000000000000000000000', // ← UPDATE: TournamentManager address
   TOKEN_SALE: '0x0000000000000000000000000000000000000000',      // ← UPDATE: TokenSale address
+  TESTNET_FAUCET: '0x0000000000000000000000000000000000000000', // ← UPDATE: TestnetFaucet address
   USDC: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',            // Arbitrum Sepolia USDC
   CHAIN_ID: 421614, // Arbitrum Sepolia
   CHAIN_NAME: 'Arbitrum Sepolia',
@@ -62,6 +63,7 @@ const MAINNET_CONTRACTS = {
   GAME_REWARDS: '0x0000000000000000000000000000000000000000',    // ← UPDATE: GameRewards address
   TOURNAMENT_MANAGER: '0x0000000000000000000000000000000000000000', // ← UPDATE: TournamentManager address
   TOKEN_SALE: '0x0000000000000000000000000000000000000000',      // ← UPDATE: TokenSale address
+  TESTNET_FAUCET: undefined, // Faucet not deployed on mainnet
   USDC: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',            // Arbitrum One USDC
   CHAIN_ID: 42161, // Arbitrum One
   CHAIN_NAME: 'Arbitrum One',
@@ -80,6 +82,7 @@ export const EIGHT_BIT_TOKEN_ADDRESS = CONTRACTS.EIGHT_BIT_TOKEN;
 export const GAME_REWARDS_ADDRESS = CONTRACTS.GAME_REWARDS;
 export const TOURNAMENT_MANAGER_ADDRESS = CONTRACTS.TOURNAMENT_MANAGER;
 export const TOKEN_SALE_ADDRESS = CONTRACTS.TOKEN_SALE;
+export const TESTNET_FAUCET_ADDRESS = CONTRACTS.TESTNET_FAUCET;
 export const USDC_ADDRESS = CONTRACTS.USDC;
 export const ARBITRUM_CHAIN_ID = CONTRACTS.CHAIN_ID;
 export const ARBITRUM_CHAIN_NAME = CONTRACTS.CHAIN_NAME;
@@ -187,6 +190,18 @@ export const USDC_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
   "function allowance(address owner, address spender) view returns (uint256)",
   "function decimals() view returns (uint8)",
+];
+
+export const TESTNET_FAUCET_ABI = [
+  "function claimTokens() external",
+  "function canClaim(address user) view returns (bool)",
+  "function getTimeUntilNextClaim(address user) view returns (uint256)",
+  "function getUserInfo(address user) view returns (uint256 lastClaim, uint256 totalUserClaimed, bool canUserClaim, uint256 userBalance, uint256 timeUntilNext)",
+  "function getFaucetStats() view returns (uint256 balance, uint256 distributed, uint256 claims, uint256 uniqueClaimers)",
+  "function CLAIM_AMOUNT() view returns (uint256)",
+  "function COOLDOWN_PERIOD() view returns (uint256)",
+  "function MIN_BALANCE_THRESHOLD() view returns (uint256)",
+  "event TokensClaimed(address indexed user, uint256 amount, uint256 timestamp)",
 ];
 
 // ═══════════════════════════════════════════════════════════

@@ -102,6 +102,29 @@ async function main() {
   console.log("✅ TokenSale funded with", ethers.formatEther(saleAmount), "8BIT");
   console.log();
 
+  // Deploy TestnetFaucet (testnet only)
+  let faucetAddress = "";
+  if (network.name === "arbitrumSepolia") {
+    console.log("📝 Deploying TestnetFaucet (testnet only)...");
+    const TestnetFaucet = await ethers.getContractFactory("TestnetFaucet");
+    const faucet = await TestnetFaucet.deploy(tokenAddress);
+    await faucet.waitForDeployment();
+    faucetAddress = await faucet.getAddress();
+    console.log("✅ TestnetFaucet deployed to:", faucetAddress);
+    console.log();
+
+    // Fund faucet with 50M tokens for testing
+    console.log("💰 Funding TestnetFaucet with 50M tokens...");
+    const faucetAmount = ethers.parseEther("50000000"); // 50M tokens
+    const faucetFundTx = await token.transfer(faucetAddress, faucetAmount);
+    await faucetFundTx.wait();
+    console.log("✅ TestnetFaucet funded with", ethers.formatEther(faucetAmount), "8BIT");
+    console.log();
+  } else {
+    console.log("⚠️  Skipping TestnetFaucet deployment (mainnet - faucet is testnet only)");
+    console.log();
+  }
+
   console.log("═══════════════════════════════════════════════════");
   console.log("  DEPLOYMENT SUMMARY");
   console.log("═══════════════════════════════════════════════════");
@@ -110,6 +133,9 @@ async function main() {
   console.log("GameRewards:", rewardsAddress);
   console.log("TournamentManager:", tournamentsAddress);
   console.log("TokenSale:", tokenSaleAddress);
+  if (faucetAddress) {
+    console.log("TestnetFaucet:", faucetAddress);
+  }
   console.log("Deployer:", deployer.address);
   console.log();
   console.log("⚠️  IMPORTANT NEXT STEPS:");
