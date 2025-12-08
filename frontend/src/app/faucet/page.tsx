@@ -49,17 +49,17 @@ export default function FaucetPage() {
   });
 
   // Extract user info
-  const lastClaim = userInfo ? Number(userInfo[0]) : 0;
-  const totalClaimed = userInfo ? userInfo[1] : 0n;
-  const canClaim = userInfo ? userInfo[2] : false;
-  const userBalance = userInfo ? userInfo[3] : 0n;
-  const timeRemaining = userInfo ? Number(userInfo[4]) : 0;
+  const lastClaim = userInfo ? Number((userInfo as readonly [bigint, bigint, boolean, bigint, bigint])[0]) : 0;
+  const totalClaimed = userInfo ? (userInfo as readonly [bigint, bigint, boolean, bigint, bigint])[1] : 0n;
+  const canClaim = userInfo ? (userInfo as readonly [bigint, bigint, boolean, bigint, bigint])[2] : false;
+  const userBalance = userInfo ? (userInfo as readonly [bigint, bigint, boolean, bigint, bigint])[3] : 0n;
+  const timeRemaining = userInfo ? Number((userInfo as readonly [bigint, bigint, boolean, bigint, bigint])[4]) : 0;
 
   // Extract faucet stats
-  const faucetBalance = faucetStats ? faucetStats[0] : 0n;
-  const totalDistributed = faucetStats ? faucetStats[1] : 0n;
-  const totalClaims = faucetStats ? Number(faucetStats[2]) : 0;
-  const uniqueClaimers = faucetStats ? Number(faucetStats[3]) : 0;
+  const faucetBalance = faucetStats ? (faucetStats as readonly [bigint, bigint, bigint, bigint])[0] : 0n;
+  const totalDistributed = faucetStats ? (faucetStats as readonly [bigint, bigint, bigint, bigint])[1] : 0n;
+  const totalClaims = faucetStats ? Number((faucetStats as readonly [bigint, bigint, bigint, bigint])[2]) : 0;
+  const uniqueClaimers = faucetStats ? Number((faucetStats as readonly [bigint, bigint, bigint, bigint])[3]) : 0;
 
   // Update countdown timer
   useEffect(() => {
