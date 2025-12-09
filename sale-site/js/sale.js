@@ -42,13 +42,74 @@ let saleContract = null;
 let tokenContract = null;
 let usdcContract = null;
 let paymentMethod = 'eth';
+let currentEthPrice = 5000; // Fallback default
+
+// Price cache settings
+const PRICE_CACHE_KEY = '8bit_eth_price';
+const PRICE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
+    await fetchEthPrice(); // Get ETH price first
     await loadSaleData();
     startRefreshInterval();
 });
+
+async function fetchEthPrice() {
+    try {
+        // Check cache first
+        const cached = localStorage.getItem(PRICE_CACHE_KEY);
+        if (cached) {
+            const { price, timestamp } = JSON.parse(cached);
+            const age = Date.now() - timestamp;
+
+            // Use cached price if less than 5 minutes old
+            if (age < PRICE_CACHE_DURATION) {
+                currentEthPrice = price;
+                console.log('Using cached ETH price:', price);
+                return price;
+            }
+        }
+
+        // Fetch fresh price from CoinGecko (free API, no key needed)
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+
+        if (!response.ok) {
+            throw new Error('CoinGecko API error');
+        }
+
+        const data = await response.json();
+        const price = data.ethereum.usd;
+
+        // Cache the price
+        localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify({
+            price: price,
+            timestamp: Date.now()
+        }));
+
+        currentEthPrice = price;
+        console.log('Fetched fresh ETH price from CoinGecko:', price);
+        return price;
+
+    } catch (error) {
+        console.error('Error fetching ETH price:', error);
+
+        // Try to use cached price even if expired
+        const cached = localStorage.getItem(PRICE_CACHE_KEY);
+        if (cached) {
+            const { price } = JSON.parse(cached);
+            currentEthPrice = price;
+            console.log('Using expired cached ETH price:', price);
+            return price;
+        }
+
+        // Final fallback
+        console.log('Using fallback ETH price: $5000');
+        currentEthPrice = 5000;
+        return 5000;
+    }
+}
 
 function setupEventListeners() {
     // Connect wallet button
@@ -172,8 +233,8 @@ async function loadSaleData() {
         document.getElementById('tokensSold').textContent = formatNumber(ethers.utils.formatEther(tokensSold));
         document.getElementById('tokensSoldSub').textContent = '/ ' + formatNumber(ethers.utils.formatEther(tokensForSale)) + ' 8BIT';
 
-        // Calculate total raised
-        const ethValue = parseFloat(ethers.utils.formatEther(ethRaised)) * 5000; // Assume $5000 ETH
+        // Calculate total raised using real-time ETH price
+        const ethValue = parseFloat(ethers.utils.formatEther(ethRaised)) * currentEthPrice;
         const usdcValue = parseFloat(ethers.utils.formatUnits(usdcRaised, 6));
         document.getElementById('totalRaised').textContent = '$' + formatNumber(ethValue + usdcValue);
 
@@ -380,6 +441,9 @@ function formatTimeRemaining(seconds) {
 function startRefreshInterval() {
     // Refresh sale data every 30 seconds
     setInterval(loadSaleData, 30000);
+
+    // Refresh ETH price every 5 minutes (respects cache)
+    setInterval(fetchEthPrice, PRICE_CACHE_DURATION);
 
     // Update countdown every second
     setInterval(() => {
