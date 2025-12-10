@@ -48,8 +48,14 @@ let currentEthPrice = 5000; // Fallback default
 const PRICE_CACHE_KEY = '8bit_eth_price';
 const PRICE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Initialize
+// Initialize - wait for ethers.js to be loaded
 document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for ethers to be available
+    if (typeof ethers === 'undefined') {
+        console.error('ethers.js not loaded');
+        return;
+    }
+
     setupEventListeners();
     await fetchEthPrice(); // Get ETH price first
     await loadSaleData();

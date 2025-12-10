@@ -30,15 +30,20 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-arcade-black/95 backdrop-blur border-b border-arcade-green/30">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          {/* Logo - Links to Homepage */}
+          <a
+            href="https://8bitarcade.games"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 group"
+          >
             <span className="font-pixel text-lg md:text-xl text-arcade-green group-hover:glow-green transition-all">
               8-BIT
             </span>
             <span className="font-pixel text-lg md:text-xl text-arcade-cyan group-hover:glow-cyan transition-all">
               ARCADE
             </span>
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
