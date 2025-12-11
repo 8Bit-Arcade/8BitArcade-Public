@@ -208,23 +208,26 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
+    <!-- Navigation -->
+    <nav class="navbar">
         <div class="container">
-            <div class="header-content">
-                <a href="index.html" class="logo">
-                    <span class="pixel-text glow-green">8-BIT</span>
-                    <span class="pixel-text glow-cyan">ARCADE</span>
-                </a>
-                <nav class="nav">
-                    <a href="index.html">Home</a>
-                    <a href="sale.html">Token Sale</a>
+            <div class="nav-content">
+                <div class="logo">
+                    <a href="index.html" class="pixel-text glow-pink">8BIT ARCADE</a>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html#about">About</a>
                     <a href="tokenomics.html" class="active">Tokenomics</a>
-                    <a href="https://play.8bitarcade.games" target="_blank">Play Games</a>
-                </nav>
+                    <a href="index.html#roadmap">Roadmap</a>
+                    <a href="index.html#faq">FAQ</a>
+                    <a href="https://docs.8bitarcade.games" target="_blank">Docs</a>
+                    <a href="sale.html" class="btn btn-primary">Token Sale</a>
+                    <a href="https://play.8bitarcade.games" target="_blank" class="btn btn-play">Play Now</a>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Hero Section -->
     <section class="hero" style="padding: 4rem 0;">
@@ -567,41 +570,38 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3 class="pixel-text glow-green">8-BIT ARCADE</h3>
-                    <p>Play-to-Earn Retro Gaming on Arbitrum</p>
+                    <h3 class="pixel-text">8BIT ARCADE</h3>
+                    <p>Retro gaming meets blockchain technology</p>
                 </div>
                 <div class="footer-section">
-                    <h4>Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="sale.html">Token Sale</a></li>
-                        <li><a href="tokenomics.html">Tokenomics</a></li>
-                        <li><a href="https://play.8bitarcade.games" target="_blank">Play Games</a></li>
-                    </ul>
+                    <h4 class="pixel-text">Links</h4>
+                    <a href="https://play.8bitarcade.games" target="_blank">Play Games</a>
+                    <a href="sale.html">Token Sale</a>
+                    <a href="tokenomics.html">Tokenomics</a>
+                    <a href="https://docs.8bitarcade.games" target="_blank">Documentation</a>
+                    <a href="index.html#roadmap">Roadmap</a>
                 </div>
                 <div class="footer-section">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="https://github.com/JayB77/8BitArcade" target="_blank">GitHub</a></li>
-                        <li><a href="https://github.com/JayB77/8BitArcade/blob/main/TOKENOMICS.md" target="_blank">Full Tokenomics</a></li>
-                        <li><a href="#">Whitepaper (Soon)</a></li>
-                        <li><a href="#">Audit (Soon)</a></li>
-                    </ul>
+                    <h4 class="pixel-text">Community</h4>
+                    <a href="https://discord.gg/8bitarcade" target="_blank">Discord</a>
+                    <a href="https://twitter.com/8bitarcade" target="_blank">Twitter</a>
+                    <a href="https://t.me/8bitarcade" target="_blank">Telegram</a>
+                    <a href="https://github.com/8bitarcade" target="_blank">GitHub</a>
                 </div>
                 <div class="footer-section">
-                    <h4>Community</h4>
-                    <ul>
-                        <li><a href="#" target="_blank">Twitter (Soon)</a></li>
-                        <li><a href="#" target="_blank">Discord (Soon)</a></li>
-                        <li><a href="#" target="_blank">Telegram (Soon)</a></li>
-                    </ul>
+                    <h4 class="pixel-text">Legal</h4>
+                    <a href="/terms.html">Terms of Service</a>
+                    <a href="/privacy.html">Privacy Policy</a>
+                    <a href="/disclaimer.html">Risk Disclaimer</a>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2025 8-Bit Arcade. All rights reserved.</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Not financial advice. Cryptocurrency carries risk. DYOR.</p>
+                <p class="disclaimer">Cryptocurrency investments carry risk. Only invest what you can afford to lose.</p>
             </div>
         </div>
     </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
