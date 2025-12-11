@@ -2,7 +2,7 @@
 
 ![8-Bit Arcade](https://img.shields.io/badge/Token-8BIT-green?style=for-the-badge)
 ![Network](https://img.shields.io/badge/Network-Arbitrum%20One-blue?style=for-the-badge)
-![Supply](https://img.shields.io/badge/Max%20Supply-100M-orange?style=for-the-badge)
+![Supply](https://img.shields.io/badge/Max%20Supply-500M-orange?style=for-the-badge)
 
 ## 📊 Token Overview
 
@@ -12,7 +12,7 @@
 | **Symbol** | 8BIT |
 | **Network** | Arbitrum One (Layer 2) |
 | **Token Standard** | ERC-20 |
-| **Total Supply** | 100,000,000 8BIT |
+| **Total Supply** | 500,000,000 8BIT |
 | **Decimals** | 18 |
 | **Initial Price** | $0.0005 USD |
 
@@ -21,28 +21,29 @@
 ## 🎯 Token Distribution
 
 ```
-Total Supply: 100,000,000 8BIT (100%)
+Total Supply: 500,000,000 8BIT (100%)
 
-├─ 50,000,000 (50%) - Token Sale
-├─ 40,000,000 (40%) - Rewards & Ecosystem
-│  ├─ Daily Rewards Pool
-│  ├─ Tournament Prizes
-│  └─ Future Incentives
-└─ 10,000,000 (10%) - Initial Distribution
-   ├─ Liquidity Provision
-   ├─ Marketing & Partnerships
-   └─ Team Allocation
+├─ 200,000,000 (40%) - Token Sale
+├─ 200,000,000 (40%) - Rewards & Ecosystem
+│  ├─ 150,000,000 (30%) - Daily Rewards + Tournaments
+│  └─ 50,000,000 (10%) - Staking Rewards
+└─ 100,000,000 (20%) - Initial Distribution
+   ├─ 50,000,000 (10%) - DEX Liquidity
+   ├─ 25,000,000 (5%) - Marketing & Partnerships
+   └─ 25,000,000 (5%) - Team & Treasury
 ```
 
 ### Distribution Breakdown
 
 | Allocation | Amount | % | Purpose |
 |------------|--------|---|---------|
-| **Token Sale** | 50,000,000 | 50% | Public presale at $0.0005 |
-| **Rewards Pool** | 40,000,000 | 40% | Player rewards, tournaments, ecosystem growth |
-| **Initial Supply** | 10,000,000 | 10% | Liquidity, marketing, team |
+| **Token Sale** | 200,000,000 | 40% | Public presale at $0.0005 |
+| **Rewards Pool** | 150,000,000 | 30% | Player rewards, tournaments, ecosystem growth |
+| **Staking Pool** | 50,000,000 | 10% | Long-term holder incentives |
+| **DEX Liquidity** | 50,000,000 | 10% | Initial Uniswap V3 liquidity |
+| **Operations** | 50,000,000 | 10% | Marketing, team, treasury |
 
-**Presale Cap:** $25,000 USD (if all 50M tokens sold)
+**Presale Cap:** $100,000 USD (if all 200M tokens sold)
 
 ---
 
@@ -51,8 +52,8 @@ Total Supply: 100,000,000 8BIT (100%)
 ### Presale Information
 
 - **Price:** $0.0005 per 8BIT
-- **Tokens Available:** 50,000,000 8BIT
-- **Hard Cap:** $25,000 USD
+- **Tokens Available:** 200,000,000 8BIT
+- **Hard Cap:** $100,000 USD
 - **Payment Methods:** ETH, USDC
 - **Network:** Arbitrum One (low fees!)
 - **Vesting:** None - tokens available immediately after purchase
@@ -72,20 +73,20 @@ Total Supply: 100,000,000 8BIT (100%)
 
 | Source | Tokens/Month | % of Max Supply |
 |--------|--------------|-----------------|
-| Daily Rewards (10K/day) | 300,000 | 0.30% |
-| Standard Tournaments | 30,000 | 0.03% |
-| High Roller Tournaments | 110,000 | 0.11% |
-| **TOTAL** | **440,000** | **0.44%** |
+| Daily Rewards (10K/day) | 300,000 | 0.06% |
+| Standard Tournaments | 30,000 | 0.006% |
+| High Roller Tournaments | 110,000 | 0.022% |
+| **TOTAL** | **440,000** | **0.088%** |
 
 ### Annual Emissions
 
-**Year 1:** 5,280,000 tokens (5.28% of max supply)
+**Year 1:** 5,280,000 tokens (1.056% of max supply)
 
 This sustainable emission rate ensures:
 - ✅ Adequate player rewards
-- ✅ Controlled inflation (<6% annually)
+- ✅ Ultra-low inflation (<2% annually)
 - ✅ Long-term token value appreciation
-- ✅ Multi-year rewards runway
+- ✅ 28+ year rewards runway from 150M pool
 
 ---
 
@@ -143,14 +144,14 @@ Top 10 players in each game earn daily rewards:
 
 ### Projected Prize Values at Different Market Caps
 
-*Assumptions: 3 months post-launch, 50% presale sold, ~36.32M circulating supply*
+*Assumptions: 3 months post-launch, 50% presale sold, ~150M circulating supply*
 
 | Market Cap | Token Price | High Roller Monthly | High Roller Weekly | Standard Monthly | Standard Weekly |
 |------------|-------------|---------------------|-------------------|------------------|-----------------|
-| **$100,000** | $0.00275 | $137.50 | $41.25 | $27.50 | $13.75 |
-| **$500,000** | $0.01376 | $688 | $206 | $138 | $69 |
-| **$1,000,000** | $0.02753 | $1,376 | $413 | $275 | $138 |
-| **$10,000,000** | $0.27530 | $13,765 | $4,130 | $2,753 | $1,377 |
+| **$100,000** | $0.000667 | $33.35 | $10.00 | $6.67 | $3.33 |
+| **$500,000** | $0.00333 | $166.50 | $49.95 | $33.30 | $16.65 |
+| **$1,000,000** | $0.00667 | $333.50 | $100.05 | $66.70 | $33.35 |
+| **$10,000,000** | $0.0667 | $3,335 | $1,000 | $667 | $333.50 |
 
 ### Price Appreciation Scenarios
 
@@ -194,30 +195,61 @@ Top 10 players in each game earn daily rewards:
 
 ---
 
+## 💎 Staking Pool Details
+
+### Allocation & Sustainability
+
+| Parameter | Value |
+|-----------|-------|
+| **Total Staking Pool** | 50,000,000 8BIT |
+| **% of Max Supply** | 10% |
+| **Distribution Rate** | 1% per month (500K tokens) |
+| **Pool Runway** | 100 months (~8.3 years) |
+
+### Projected APY Scenarios
+
+*APY varies based on total tokens staked*
+
+| Total Staked | Monthly Rewards | Annual Rewards | APY |
+|--------------|-----------------|----------------|-----|
+| **10M (2% supply)** | 500,000 | 6,000,000 | 60% |
+| **25M (5% supply)** | 500,000 | 6,000,000 | 24% |
+| **50M (10% supply)** | 500,000 | 6,000,000 | 12% |
+
+**Key Benefits:**
+- Reduces circulating supply and sell pressure
+- Rewards long-term holders
+- 8+ year sustainability
+- Flexible APY based on participation
+
+**Note:** Staking launches in Phase 3 (Months 7-12)
+
+---
+
 ## 📊 Circulating Supply Projection
 
 ### Year 1 Breakdown
 
 | Month | New Emissions | Circulating Supply | % of Max Supply |
 |-------|---------------|-------------------|-----------------|
-| Launch | 60,000,000* | 60,000,000 | 60% |
-| Month 3 | 1,320,000 | 61,320,000 | 61.32% |
-| Month 6 | 2,640,000 | 62,640,000 | 62.64% |
-| Month 12 | 5,280,000 | 65,280,000 | 65.28% |
+| Launch | 300,000,000* | 300,000,000 | 60% |
+| Month 3 | 1,320,000 | 301,320,000 | 60.26% |
+| Month 6 | 2,640,000 | 302,640,000 | 60.53% |
+| Month 12 | 5,280,000 | 305,280,000 | 61.06% |
 
-*Initial 10M + Presale 50M (assuming full sale)
+*Initial 100M + Presale 200M (assuming full sale)
 
 ### 5-Year Projection
 
 | Year | Annual Emissions | Cumulative Supply | % of Max Supply |
 |------|-----------------|-------------------|-----------------|
-| 1 | 5,280,000 | 65,280,000 | 65.28% |
-| 2 | 5,280,000 | 70,560,000 | 70.56% |
-| 3 | 5,280,000 | 75,840,000 | 75.84% |
-| 4 | 5,280,000 | 81,120,000 | 81.12% |
-| 5 | 5,280,000 | 86,400,000 | 86.40% |
+| 1 | 5,280,000 | 305,280,000 | 61.06% |
+| 2 | 5,280,000 | 310,560,000 | 62.11% |
+| 3 | 5,280,000 | 315,840,000 | 63.17% |
+| 4 | 5,280,000 | 321,120,000 | 64.22% |
+| 5 | 5,280,000 | 326,400,000 | 65.28% |
 
-**Runway:** At current emission rate, rewards pool lasts ~7.5 years before hitting max supply cap.
+**Runway:** At current emission rate, the 150M rewards pool lasts ~28 years before depletion.
 
 ---
 
@@ -226,7 +258,7 @@ Top 10 players in each game earn daily rewards:
 ### Smart Contract Features
 
 ✅ **Audited Contracts** - OpenZeppelin standards
-✅ **Max Supply Cap** - Hard-coded 100M limit
+✅ **Max Supply Cap** - Hard-coded 500M limit
 ✅ **No Mint Function** - Only GameRewards contract can mint
 ✅ **Transparent** - All transactions on-chain
 ✅ **Immutable** - Cannot be changed after deployment
@@ -289,12 +321,13 @@ Top 10 players in each game earn daily rewards:
    - Scarcity increases with adoption
 
 4. **Sustainable Emissions**
-   - Only 5.28% annual inflation
+   - Only 1.056% annual inflation
    - Much lower than most GameFi projects
-   - Long runway before max supply
+   - 28+ year rewards runway
 
-5. **Low Market Cap**
-   - Presale raises only $25K
+5. **Professional Launch**
+   - $100K presale for proper liquidity
+   - $50K+ locked DEX liquidity
    - Room for significant growth
    - Early adopter advantage
 
