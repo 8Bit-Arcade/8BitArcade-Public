@@ -28,7 +28,7 @@ contract EightBitToken is ERC20, Ownable {
 
     constructor() ERC20("8-Bit Arcade Token", "8BIT") Ownable(msg.sender) {
         // Initial mint to deployer for liquidity, marketing, team
-        // 100M (20%): 50M DEX liquidity + 25M marketing + 25M team/treasury
+        // 100M (20%): 75M DEX liquidity + 15M marketing + 10M team (vested)
         _mint(msg.sender, 100_000_000 * 10**18); // 20% initial supply
     }
 
