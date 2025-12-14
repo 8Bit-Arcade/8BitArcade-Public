@@ -25,6 +25,9 @@ import { ethers } from 'ethers';
 // ⚠️ UPDATE: Make sure this points to your contracts config
 import { GAME_REWARDS_ADDRESS, ARBITRUM_RPC_URL, USE_TESTNET } from '../../config';
 
+// Import Discord webhook integration
+import { postWinnersToDiscord } from '../notifications/discordWebhook';
+
 // GameRewards contract ABI (minimal)
 const GAME_REWARDS_ABI = [
   'function distributeRewards(uint256 dayId, address[] calldata players, uint256[] calldata ranks) external',
@@ -203,6 +206,40 @@ export const distributeDaily Rewards = functions
       });
 
       console.log('Distribution logged to Firestore');
+
+      // Post winners to Discord for transparency
+      try {
+        const networkExplorerUrl = USE_TESTNET
+          ? 'https://sepolia.arbiscan.io'
+          : 'https://arbiscan.io';
+
+        // Get reward amounts for each rank from contract
+        const winnersWithRewards = await Promise.all(
+          top10.map(async (p, i) => {
+            const rank = i + 1;
+            const rewardAmount = await rewardsContract.getRewardForRank(rank);
+            return {
+              rank,
+              address: p.address,
+              score: p.score,
+              reward: ethers.formatEther(rewardAmount),
+            };
+          })
+        );
+
+        await postWinnersToDiscord(
+          winnersWithRewards,
+          'All Games', // Can be game-specific if you distribute per-game
+          tx.hash,
+          dayId,
+          networkExplorerUrl
+        );
+
+        console.log('✅ Winners posted to Discord');
+      } catch (discordError) {
+        console.error('Discord notification failed (non-critical):', discordError);
+        // Don't fail the whole function if Discord fails
+      }
 
       return {
         success: true,
