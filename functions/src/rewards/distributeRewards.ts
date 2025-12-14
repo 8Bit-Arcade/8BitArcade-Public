@@ -124,7 +124,7 @@ async function getTop10Players(dayId: number): Promise<LeaderboardEntry[]> {
  *
  * Triggered daily at midnight UTC via Cloud Scheduler
  */
-export const distributeDaily Rewards = functions
+export const distributeDailyRewards = functions
   .runWith({
     timeoutSeconds: 300, // 5 minutes
     memory: '512MB',
