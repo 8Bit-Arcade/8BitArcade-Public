@@ -25,6 +25,9 @@ import { ethers } from 'ethers';
 // ⚠️ UPDATE: Make sure this points to your contracts config
 import { GAME_REWARDS_ADDRESS, ARBITRUM_RPC_URL, USE_TESTNET } from '../../config';
 
+// Import Discord webhook integration
+import { postWinnersToDiscord } from '../notifications/discordWebhook';
+
 // GameRewards contract ABI (minimal)
 const GAME_REWARDS_ABI = [
   'function distributeRewards(uint256 dayId, address[] calldata players, uint256[] calldata ranks) external',
@@ -36,6 +39,7 @@ interface LeaderboardEntry {
   address: string;
   score: number;
   username?: string;
+  displayName?: string; // User's preferred display (username, ENS, or address)
 }
 
 /**
@@ -78,16 +82,39 @@ async function getTop10Players(dayId: number): Promise<LeaderboardEntry[]> {
 
   const players: LeaderboardEntry[] = [];
 
-  snapshot.forEach((doc) => {
+  // Fetch display preferences for each player
+  for (const doc of snapshot.docs) {
     const data = doc.data();
     if (data.address) {
+      let displayName = data.address; // Default to address
+
+      try {
+        // Fetch user's display preference from users collection
+        const userDoc = await db.collection('users').doc(data.address.toLowerCase()).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          const displayPreference = userData?.displayPreference || 'address';
+
+          if (displayPreference === 'username' && userData?.username) {
+            displayName = userData.username;
+          } else if (displayPreference === 'ens' && userData?.ensName) {
+            displayName = userData.ensName;
+          }
+          // If 'address' or no preference, displayName stays as address
+        }
+      } catch (error) {
+        console.warn(`Failed to fetch display preference for ${data.address}:`, error);
+        // Continue with address as displayName
+      }
+
       players.push({
         address: data.address,
         score: data.score || 0,
         username: data.username,
+        displayName,
       });
     }
-  });
+  }
 
   return players;
 }
@@ -203,6 +230,41 @@ export const distributeDaily Rewards = functions
       });
 
       console.log('Distribution logged to Firestore');
+
+      // Post winners to Discord for transparency
+      try {
+        const networkExplorerUrl = USE_TESTNET
+          ? 'https://sepolia.arbiscan.io'
+          : 'https://arbiscan.io';
+
+        // Get reward amounts for each rank from contract
+        const winnersWithRewards = await Promise.all(
+          top10.map(async (p, i) => {
+            const rank = i + 1;
+            const rewardAmount = await rewardsContract.getRewardForRank(rank);
+            return {
+              rank,
+              address: p.address,
+              score: p.score,
+              reward: ethers.formatEther(rewardAmount),
+              displayName: p.displayName,
+            };
+          })
+        );
+
+        await postWinnersToDiscord(
+          winnersWithRewards,
+          'All Games', // Can be game-specific if you distribute per-game
+          tx.hash,
+          dayId,
+          networkExplorerUrl
+        );
+
+        console.log('✅ Winners posted to Discord');
+      } catch (discordError) {
+        console.error('Discord notification failed (non-critical):', discordError);
+        // Don't fail the whole function if Discord fails
+      }
 
       return {
         success: true,
