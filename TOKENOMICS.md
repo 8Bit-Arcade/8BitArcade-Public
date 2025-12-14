@@ -212,8 +212,8 @@ Top 10 players in each game earn daily rewards:
 |-----------|-------|
 | **Total Staking Pool** | 50,000,000 8BIT |
 | **% of Max Supply** | 10% |
-| **Distribution Rate** | 1% per month (500K tokens) |
-| **Pool Runway** | 100 months (~8.3 years) |
+| **Distribution Rate** | 1.67% per month (833,333 tokens) |
+| **Pool Runway** | 60 months (5 years) |
 
 ### Projected APY Scenarios
 
@@ -221,14 +221,14 @@ Top 10 players in each game earn daily rewards:
 
 | Total Staked | Monthly Rewards | Annual Rewards | APY |
 |--------------|-----------------|----------------|-----|
-| **10M (2% supply)** | 500,000 | 6,000,000 | 60% |
-| **25M (5% supply)** | 500,000 | 6,000,000 | 24% |
-| **50M (10% supply)** | 500,000 | 6,000,000 | 12% |
+| **10M (2% supply)** | 833,333 | 10,000,000 | 100% |
+| **25M (5% supply)** | 833,333 | 10,000,000 | 40% |
+| **50M (10% supply)** | 833,333 | 10,000,000 | 20% |
 
 **Key Benefits:**
 - Reduces circulating supply and sell pressure
 - Rewards long-term holders
-- 8+ year sustainability
+- 5 year sustainability (matches rewards schedule)
 - Flexible APY based on participation
 
 **Note:** Staking launches in Phase 3 (Months 7-12)

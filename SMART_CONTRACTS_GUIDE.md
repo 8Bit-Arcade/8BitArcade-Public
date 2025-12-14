@@ -28,23 +28,27 @@ The smart contract system consists of:
 - Do NOT mint these tokens until staking contract is deployed
 - GameRewards contract enforces MAX_SUPPLY cap (prevents over-minting)
 - Planned for Phase 3 (months 7-12)
-- 1% monthly distribution rate = 8+ year runway
+- 1.67% monthly distribution rate = 5 year runway (matches rewards schedule)
 
 **Initial Mint (100M tokens):**
 - Minted to deployer wallet in EightBitToken constructor
 - Must be split: 75M DEX liquidity + 15M marketing + 10M team
-- Lock 75M DEX liquidity on Uniswap V3 for 6-12 months (deep pool!)
+- Lock 75M DEX liquidity on Uniswap V3 for 3-4 years (deep pool!)
 - 15M for marketing: Partnerships, CEX listings, community growth
 - 10M for team: Vested allocation only (no emergency funds)
 
 **Deployment Order:**
 1. ✅ EightBitToken (100M initial mint)
-2. ✅ GameRewards (authorized to mint rewards)
+2. ✅ GameRewards (authorized to mint daily rewards - 150M over 5 years)
 3. ✅ TokenSale (200M tokens transferred from treasury)
 4. 🔜 Uniswap V3 8BIT/USDC Pool (primary liquidity pair)
 5. 🔜 TournamentBuyback (after pool creation)
 6. 🔜 Uniswap V3 8BIT/ETH Pool (secondary pair, if needed)
-7. 🔜 Staking Contract (Phase 3, months 7-12)
+7. 🔜 Staking Contract (Phase 3, months 7-12 - 50M over 5 years)
+
+**Post-Deployment Setup:**
+- Authorize GameRewards: `token.setAuthorizedMinter(gameRewardsAddress, true)`
+- Authorize Staking (Phase 3): `token.setAuthorizedMinter(stakingAddress, true)`
 
 **Future Liquidity Pairs:**
 - **Primary:** 8BIT/USDC - For tournament fees, buybacks, and stable trading
