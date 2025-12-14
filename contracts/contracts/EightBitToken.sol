@@ -7,23 +7,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /**
  * @title EightBitToken (8BIT)
  * @notice The native token for 8-Bit Arcade
- * @dev ERC20 token with minting controlled by the GameRewards contract
+ * @dev ERC20 token with minting controlled by authorized contracts (GameRewards, Staking)
  */
 contract EightBitToken is ERC20, Ownable {
     /**
-     * ⚠️ IMPORTANT: UPDATE THIS ADDRESS AFTER DEPLOYMENT ⚠️
+     * ⚠️ IMPORTANT: UPDATE THESE ADDRESSES AFTER DEPLOYMENT ⚠️
      *
-     * Set this to the GameRewards contract address after deploying GameRewards.
-     * The GameRewards contract needs permission to mint tokens as player rewards.
+     * Authorized minters can mint tokens for rewards:
+     * - GameRewards: Daily leaderboard rewards (150M over 5 years)
+     * - Staking: Staking rewards (50M over 5 years)
      *
-     * Use setGameRewards() function to update this after deployment.
+     * Use setAuthorizedMinter() to authorize contracts after deployment.
      */
-    address public gameRewardsContract;
+    mapping(address => bool) public authorizedMinters;
 
     /// @notice Maximum supply cap (500 million tokens)
     uint256 public constant MAX_SUPPLY = 500_000_000 * 10**18;
 
-    event GameRewardsUpdated(address indexed oldAddress, address indexed newAddress);
+    event MinterAuthorized(address indexed minter, bool authorized);
     event TokensMinted(address indexed to, uint256 amount);
 
     constructor() ERC20("8-Bit Arcade Token", "8BIT") Ownable(msg.sender) {
@@ -33,25 +34,25 @@ contract EightBitToken is ERC20, Ownable {
     }
 
     /**
-     * @notice Set the GameRewards contract address
-     * @dev Only owner can call. Must be called after deploying GameRewards contract
-     * @param _gameRewards Address of the GameRewards contract
+     * @notice Authorize or revoke minting permission for a contract
+     * @dev Only owner can call. Use for GameRewards and Staking contracts
+     * @param minter Address to authorize/revoke
+     * @param authorized True to authorize, false to revoke
      */
-    function setGameRewards(address _gameRewards) external onlyOwner {
-        require(_gameRewards != address(0), "Invalid address");
-        address oldAddress = gameRewardsContract;
-        gameRewardsContract = _gameRewards;
-        emit GameRewardsUpdated(oldAddress, _gameRewards);
+    function setAuthorizedMinter(address minter, bool authorized) external onlyOwner {
+        require(minter != address(0), "Invalid address");
+        authorizedMinters[minter] = authorized;
+        emit MinterAuthorized(minter, authorized);
     }
 
     /**
-     * @notice Mint tokens as game rewards
-     * @dev Only callable by GameRewards contract
+     * @notice Mint tokens as rewards
+     * @dev Only callable by authorized minters (GameRewards, Staking)
      * @param to Address to mint tokens to
      * @param amount Amount of tokens to mint
      */
     function mintReward(address to, uint256 amount) external {
-        require(msg.sender == gameRewardsContract, "Only GameRewards can mint");
+        require(authorizedMinters[msg.sender], "Not authorized to mint");
         require(totalSupply() + amount <= MAX_SUPPLY, "Exceeds max supply");
         _mint(to, amount);
         emit TokensMinted(to, amount);
