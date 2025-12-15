@@ -15,5 +15,8 @@ export { submitScore } from './scores/submitScore';
 export { getLeaderboard } from './leaderboard/getLeaderboard';
 export { resetDailyLeaderboards, resetWeeklyLeaderboards } from './leaderboard/resetDailyLeaderboards';
 
+// Admin functions
+export { unbanAccount, clearUserFlags, getFlaggedUsers, getUserBanInfo } from './admin/adminFunctions';
+
 // Re-export types for use in frontend
 export type { GameInput, GameData, ValidationResult } from './types';

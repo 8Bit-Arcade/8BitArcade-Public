@@ -244,7 +244,10 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
     // Update leaderboard if new best
     if (newBest) {
       await updateLeaderboard(gameId, playerAddress, username, verifiedScore);
-      await updateGlobalLeaderboard(playerAddress, username, verifiedScore);
+      // Get updated total score for global leaderboard
+      const updatedScoreDoc = await scoreRef.get();
+      const newTotalScore = updatedScoreDoc.data()?.totalScore || 0;
+      await updateGlobalLeaderboard(playerAddress, username, newTotalScore);
     }
 
     // Update user stats
