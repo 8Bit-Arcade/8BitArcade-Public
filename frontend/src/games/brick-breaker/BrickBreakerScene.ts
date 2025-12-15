@@ -67,11 +67,13 @@ export class BrickBreakerScene extends Phaser.Scene {
       CONFIG.PADDLE_HEIGHT
     );
     this.paddle.setPosition(width / 2, height - 40);
+    this.paddle.setDepth(1); // Paddle renders above bricks
 
     // Create ball
     this.ball = this.add.graphics();
     this.ball.fillStyle(0xffffff);
     this.ball.fillCircle(0, 0, CONFIG.BALL_SIZE);
+    this.ball.setDepth(1); // Ball renders above bricks
     this.resetBall();
 
     // Create bricks
@@ -83,18 +85,21 @@ export class BrickBreakerScene extends Phaser.Scene {
       fontSize: '10px',
       color: '#00ff41',
     });
+    this.livesText.setDepth(2); // UI renders on top
 
     this.levelText = this.add.text(width - 16, height - 25, `LEVEL ${this.level}`, {
       fontFamily: '"Press Start 2P"',
       fontSize: '10px',
       color: '#00f5ff',
     }).setOrigin(1, 0);
+    this.levelText.setDepth(2); // UI renders on top
 
     this.instructionText = this.add.text(width / 2, height / 2 + 100, 'PRESS FIRE TO LAUNCH', {
       fontFamily: '"Press Start 2P"',
       fontSize: '12px',
       color: '#ffffff',
     }).setOrigin(0.5);
+    this.instructionText.setDepth(2); // UI renders on top
   }
 
   createBricks(): void {
@@ -123,6 +128,7 @@ export class BrickBreakerScene extends Phaser.Scene {
         const x = startX + col * (CONFIG.BRICK_WIDTH + 5);
         const y = startY + row * (CONFIG.BRICK_HEIGHT + 5);
         brick.setPosition(x, y);
+        brick.setDepth(0); // Bricks render below ball and paddle
         brick.setData('row', row);
         brick.setData('active', true);
 
