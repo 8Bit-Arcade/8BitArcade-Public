@@ -34,11 +34,12 @@ export interface FlagReason {
 
 /**
  * Threshold for auto-banning
+ * Relaxed thresholds to reduce false positives
  */
 const AUTO_BAN_THRESHOLDS = {
-  highSeverity: 2, // 2 high severity flags = auto-ban
-  mediumSeverity: 5, // 5 medium severity flags = auto-ban
-  totalFlags: 10, // 10 flags total = auto-ban
+  highSeverity: 5, // 5 high severity flags = auto-ban (was 2)
+  mediumSeverity: 10, // 10 medium severity flags = auto-ban (was 5)
+  totalFlags: 20, // 20 flags total = auto-ban (was 10)
 };
 
 /**

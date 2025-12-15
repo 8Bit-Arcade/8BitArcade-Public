@@ -78,6 +78,7 @@ export class AlienAssaultScene extends Phaser.Scene {
     this.player = this.add.graphics();
     this.drawPlayer();
     this.player.setPosition(width / 2, height - 50);
+    this.player.setDepth(1); // Player renders above aliens
 
     // Groups
     this.bullets = this.add.group();
@@ -92,12 +93,14 @@ export class AlienAssaultScene extends Phaser.Scene {
       fontSize: '12px',
       color: '#00ff41',
     });
+    this.livesText.setDepth(2); // UI renders on top
 
     this.levelText = this.add.text(width - 16, 16, `WAVE ${this.level}`, {
       fontFamily: '"Press Start 2P"',
       fontSize: '12px',
       color: '#00f5ff',
     }).setOrigin(1, 0);
+    this.levelText.setDepth(2); // UI renders on top
   }
 
   drawPlayer(): void {
@@ -125,6 +128,7 @@ export class AlienAssaultScene extends Phaser.Scene {
         const x = startX + col * CONFIG.ALIEN_SPACING;
         const y = startY + row * (CONFIG.ALIEN_HEIGHT + 15);
         alien.setPosition(x, y);
+        alien.setDepth(0); // Aliens render below player and bullets
 
         this.aliens.push({
           graphics: alien,
@@ -178,6 +182,7 @@ export class AlienAssaultScene extends Phaser.Scene {
     bullet.fillStyle(0x00ff41);
     bullet.fillRect(-2, -8, 4, 16);
     bullet.setPosition(this.player.x, this.player.y - 25);
+    bullet.setDepth(1); // Bullets render above aliens
 
     this.bullets.add(bullet);
   }
@@ -208,6 +213,7 @@ export class AlienAssaultScene extends Phaser.Scene {
     bullet.fillStyle(0xff0040);
     bullet.fillRect(-2, 0, 4, 12);
     bullet.setPosition(shooter.graphics.x, shooter.graphics.y + 15);
+    bullet.setDepth(1); // Bullets render above aliens
 
     this.alienBullets.add(bullet);
   }
