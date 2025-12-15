@@ -2,6 +2,11 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { unbanAccount as unbanAccountInternal, clearFlags as clearFlagsInternal, getFlaggedAccounts } from '../anticheat/flagging';
 import { collections } from '../config/firebase';
 
+// CORS configuration for admin functions
+const corsOptions = {
+  cors: ['https://play.8bitarcade.games', 'http://localhost:3000'],
+};
+
 /**
  * CORS configuration for admin functions
  * Allow admin panel from both localhost and production
