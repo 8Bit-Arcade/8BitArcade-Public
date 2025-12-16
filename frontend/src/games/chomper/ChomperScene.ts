@@ -712,19 +712,15 @@ export class ChomperScene extends Phaser.Scene {
     if (dir.up) {
       this.playerNextDirX = 0;
       this.playerNextDirY = -1;
-      console.log('UP pressed, queued:', this.playerNextDirX, this.playerNextDirY);
     } else if (dir.down) {
       this.playerNextDirX = 0;
       this.playerNextDirY = 1;
-      console.log('DOWN pressed, queued:', this.playerNextDirX, this.playerNextDirY);
     } else if (dir.left) {
       this.playerNextDirX = -1;
       this.playerNextDirY = 0;
-      console.log('LEFT pressed, queued:', this.playerNextDirX, this.playerNextDirY);
     } else if (dir.right) {
       this.playerNextDirX = 1;
       this.playerNextDirY = 0;
-      console.log('RIGHT pressed, queued:', this.playerNextDirX, this.playerNextDirY);
     }
 
     // Move
@@ -772,20 +768,13 @@ export class ChomperScene extends Phaser.Scene {
         const nextGridX = this.playerGridX + this.playerNextDirX;
         const nextGridY = this.playerGridY + this.playerNextDirY;
 
-        console.log('Turn check:', { nextGridX, nextGridY, canMove: this.canPlayerMoveTo(nextGridX, nextGridY) });
-
         if (this.canPlayerMoveTo(nextGridX, nextGridY)) {
           this.playerDirX = this.playerNextDirX;
           this.playerDirY = this.playerNextDirY;
-          console.log('TURN EXECUTED! Now moving:', this.playerDirX, this.playerDirY);
           // Snap to tile center for clean 90-degree turns
           this.playerPixelX = this.playerGridX * CONFIG.TILE_SIZE;
           this.playerPixelY = this.playerGridY * CONFIG.TILE_SIZE;
-        } else {
-          console.log('Turn BLOCKED by wall');
         }
-      } else {
-        console.log('Not at center yet:', { distFromCenterX, distFromCenterY });
       }
     }
 
@@ -810,15 +799,14 @@ export class ChomperScene extends Phaser.Scene {
         this.playerPixelX = 0;
       }
 
-      // Check for wall collision
+      // Check for wall collision ahead
       const nextGridX = this.playerGridX + this.playerDirX;
       const nextGridY = this.playerGridY + this.playerDirY;
       if (!this.canPlayerMoveTo(nextGridX, nextGridY)) {
-        // Stop at grid position
+        // Stop at grid position but KEEP direction (classic Pac-Man behavior)
         this.playerPixelX = this.playerGridX * CONFIG.TILE_SIZE;
         this.playerPixelY = this.playerGridY * CONFIG.TILE_SIZE;
-        this.playerDirX = 0;
-        this.playerDirY = 0;
+        // Don't reset direction - player should keep facing this way
       }
     }
 
