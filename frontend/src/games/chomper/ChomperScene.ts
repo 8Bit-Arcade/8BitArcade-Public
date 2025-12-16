@@ -679,6 +679,15 @@ export class ChomperScene extends Phaser.Scene {
     this.checkCollisions();
     if (this.pellets.size === 0 && this.powerPellets.size === 0) {
       this.levelComplete();
+    } else if (this.pellets.size + this.powerPellets.size <= 5) {
+      // Debug: log remaining pellets when only a few left
+      console.log(`Remaining: ${this.pellets.size} pellets, ${this.powerPellets.size} power pellets`);
+      if (this.pellets.size > 0) {
+        console.log('Remaining pellet locations:', Array.from(this.pellets));
+      }
+      if (this.powerPellets.size > 0) {
+        console.log('Remaining power pellet locations:', Array.from(this.powerPellets));
+      }
     }
 
     // Draw
@@ -691,22 +700,54 @@ export class ChomperScene extends Phaser.Scene {
     const oldGridX = this.playerGridX;
     const oldGridY = this.playerGridY;
 
-    // Try to change direction at grid center
+    // Pac-Man style predictive turning - check if queued direction is valid
+    // Allow turning when close to the perpendicular axis center
     const centerX = this.playerGridX * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
     const centerY = this.playerGridY * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
-    const atCenterX = Math.abs(this.playerPixelX + CONFIG.TILE_SIZE / 2 - centerX) < 2;
-    const atCenterY = Math.abs(this.playerPixelY + CONFIG.TILE_SIZE / 2 - centerY) < 2;
+    const distFromCenterX = Math.abs(this.playerPixelX + CONFIG.TILE_SIZE / 2 - centerX);
+    const distFromCenterY = Math.abs(this.playerPixelY + CONFIG.TILE_SIZE / 2 - centerY);
 
-    if (atCenterX && atCenterY) {
-      // Check if we can turn to the requested direction
-      const nextGridX = this.playerGridX + this.playerNextDirX;
-      const nextGridY = this.playerGridY + this.playerNextDirY;
-      if (this.canPlayerMoveTo(nextGridX, nextGridY)) {
-        this.playerDirX = this.playerNextDirX;
-        this.playerDirY = this.playerNextDirY;
-        // Snap to center for clean turns
-        this.playerPixelX = this.playerGridX * CONFIG.TILE_SIZE;
-        this.playerPixelY = this.playerGridY * CONFIG.TILE_SIZE;
+    // If we have a queued direction that's different from current
+    if (this.playerNextDirX !== 0 || this.playerNextDirY !== 0) {
+      const isDifferentDir = this.playerNextDirX !== this.playerDirX || this.playerNextDirY !== this.playerDirY;
+
+      if (isDifferentDir) {
+        // Horizontal to vertical turn: check if vertically centered
+        // Vertical to horizontal turn: check if horizontally centered
+        const turnTolerance = CONFIG.TILE_SIZE / 2; // Half tile tolerance for responsive turning
+        let canTurn = false;
+
+        if (this.playerNextDirY !== 0 && this.playerDirY === 0) {
+          // Want to turn vertically while moving horizontally
+          canTurn = distFromCenterY < turnTolerance;
+        } else if (this.playerNextDirX !== 0 && this.playerDirX === 0) {
+          // Want to turn horizontally while moving vertically
+          canTurn = distFromCenterX < turnTolerance;
+        } else if (this.playerDirX === 0 && this.playerDirY === 0) {
+          // Not moving, allow any direction
+          canTurn = true;
+        }
+
+        if (canTurn) {
+          const nextGridX = this.playerGridX + this.playerNextDirX;
+          const nextGridY = this.playerGridY + this.playerNextDirY;
+
+          if (this.canPlayerMoveTo(nextGridX, nextGridY)) {
+            // Execute the turn
+            this.playerDirX = this.playerNextDirX;
+            this.playerDirY = this.playerNextDirY;
+
+            // Snap to grid center on the axis we're turning on
+            if (this.playerNextDirY !== 0) {
+              // Turning vertically, snap to vertical center
+              this.playerPixelY = this.playerGridY * CONFIG.TILE_SIZE;
+            }
+            if (this.playerNextDirX !== 0) {
+              // Turning horizontally, snap to horizontal center
+              this.playerPixelX = this.playerGridX * CONFIG.TILE_SIZE;
+            }
+          }
+        }
       }
     }
 
@@ -741,12 +782,11 @@ export class ChomperScene extends Phaser.Scene {
         this.playerDirX = 0;
         this.playerDirY = 0;
       }
-
-      // Check if we entered a new tile
-      if (this.playerGridX !== oldGridX || this.playerGridY !== oldGridY) {
-        this.checkPelletCollision();
-      }
     }
+
+    // ALWAYS check pellet collision (not just when entering new tile)
+    // This prevents missing pellets due to timing issues
+    this.checkPelletCollision();
   }
 
   moveGhosts(dt: number): void {
@@ -955,14 +995,14 @@ export class ChomperScene extends Phaser.Scene {
       this.playerNextDirY = 0;
       this.powered = false;
 
-      // Reset ghosts
+      // Reset ghosts (red and pink start released, like real Pac-Man)
       this.ghosts.forEach((g, i) => {
         g.gridX = g.homeX;
         g.gridY = g.homeY;
         g.pixelX = g.gridX * CONFIG.TILE_SIZE;
         g.pixelY = g.gridY * CONFIG.TILE_SIZE;
-        g.released = i === 0;
-        g.exitedHouse = i === 0;
+        g.released = i <= 1; // Red (0) and pink (1) start released
+        g.exitedHouse = i === 0; // Only red starts outside
         g.frightened = false;
         g.eaten = false;
         g.dirX = 0;
