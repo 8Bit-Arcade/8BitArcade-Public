@@ -18,5 +18,12 @@ export { resetDailyLeaderboards, resetWeeklyLeaderboards } from './leaderboard/r
 // Admin functions
 export { unbanAccount, clearUserFlags, getFlaggedUsers, getUserBanInfo } from './admin/adminFunctions';
 
+// Tournament functions
+export { getTournaments } from './tournaments/getTournaments';
+export { getTournamentLeaderboard } from './tournaments/getTournamentLeaderboard';
+export { enterTournament } from './tournaments/enterTournament';
+export { createTournament } from './tournaments/createTournament';
+export { finalizeTournament } from './tournaments/finalizeTournament';
+
 // Re-export types for use in frontend
 export type { GameInput, GameData, ValidationResult } from './types';
