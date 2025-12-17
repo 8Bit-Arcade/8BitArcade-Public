@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { db } from '../config/firebase';
 import { TournamentDocument, TournamentEntryDocument } from '../types';
 import { Timestamp } from 'firebase-admin/firestore';
+import { distributeTournamentPrize, isValidAddress } from './distributePrize';
 
 interface FinalizeTournamentRequest {
   tournamentId: string;
@@ -59,11 +60,53 @@ async function finalizeTournamentInternal(tournamentId: string) {
     winnerId,
   });
 
-  // TODO: Trigger prize distribution to winner
-  // This would integrate with smart contracts to send 8BIT tokens
-  // await distributePrize(winnerId, tournament.prizePool);
+  // Distribute prize to winner via smart contract
+  let txHash: string | null = null;
+  if (winnerId) {
+    try {
+      // Validate winner address
+      if (!isValidAddress(winnerId)) {
+        throw new Error(`Invalid winner address: ${winnerId}`);
+      }
 
-  return { winnerId };
+      // Call smart contract to distribute prize
+      txHash = await distributeTournamentPrize(
+        tournamentId,
+        winnerId,
+        tournament.prizePool
+      );
+
+      console.log(`Prize distributed to ${winnerId}, tx: ${txHash}`);
+
+      // Record prize distribution in Firestore
+      await db.collection('prize_distributions').add({
+        tournamentId,
+        winnerId,
+        prizeAmount: tournament.prizePool,
+        tier: tournament.tier,
+        period: tournament.period,
+        txHash,
+        distributedAt: now,
+        blockchainConfirmed: true,
+      });
+    } catch (error) {
+      console.error('Error distributing prize:', error);
+
+      // Log the error but don't fail tournament finalization
+      // Admin can manually distribute prize later
+      await db.collection('prize_distribution_errors').add({
+        tournamentId,
+        winnerId,
+        prizeAmount: tournament.prizePool,
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: now,
+      });
+
+      console.warn('Tournament finalized but prize distribution failed. Manual intervention required.');
+    }
+  }
+
+  return { winnerId, txHash };
 }
 
 /**
@@ -80,13 +123,14 @@ export const finalizeTournament = onCall<FinalizeTournamentRequest>(async (reque
   }
 
   try {
-    const { winnerId } = await finalizeTournamentInternal(tournamentId);
+    const { winnerId, txHash } = await finalizeTournamentInternal(tournamentId);
 
     return {
       success: true,
       winnerId,
+      txHash,
       message: winnerId
-        ? `Tournament finalized. Winner: ${winnerId}`
+        ? `Tournament finalized. Winner: ${winnerId}${txHash ? `, Prize distributed: ${txHash}` : ''}`
         : 'Tournament finalized with no participants',
     };
   } catch (error) {
