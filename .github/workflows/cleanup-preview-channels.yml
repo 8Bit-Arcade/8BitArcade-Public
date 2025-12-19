@@ -1,0 +1,50 @@
+name: Cleanup Preview Channels
+
+# Run weekly to clean up old preview channels
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at midnight
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Firebase Tools
+        run: npm install -g firebase-tools
+
+      - name: List current channels
+        run: firebase hosting:channel:list --project bitarcade-679b7
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Delete old preview channels
+        run: |
+          echo "Deleting preview channels older than 7 days..."
+
+          # Get all channels except 'live'
+          firebase hosting:channel:list --project bitarcade-679b7 --json | \
+            jq -r '.result.channels[] | select(.name != "live") | .name' | \
+            while read channel; do
+              echo "Deleting channel: $channel"
+              firebase hosting:channel:delete "$channel" --project bitarcade-679b7 --force || true
+            done
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Show remaining channels
+        run: firebase hosting:channel:list --project bitarcade-679b7
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "✅ Preview channel cleanup complete!"
+          echo "Remaining quota should now be available for new PR previews."

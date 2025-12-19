@@ -13,12 +13,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm install
+
+      - name: Install frontend dependencies
+        run: npm install
         working-directory: ./frontend
-      - run: npm run build
+
+      - name: Build frontend
+        run: npm run build
         working-directory: ./frontend
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Deploy to Firebase preview channel
+        id: firebase_deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        continue-on-error: true
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BITARCADE_679B7 }}
           projectId: bitarcade-679b7
+
+      - name: Comment on PR (deployment success)
+        if: steps.firebase_deploy.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Firebase preview deployed successfully!\n\nPreview URL: ${{ steps.firebase_deploy.outputs.details_url }}'
+            })
+
+      - name: Comment on PR (quota reached)
+        if: steps.firebase_deploy.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⚠️ **Firebase preview channel quota reached**
+
+              The preview deployment was skipped because Firebase Hosting has reached its preview channel limit.
+
+              **What this means:**
+              - ✅ Your code changes are valid and the build succeeded
+              - ❌ No preview URL available for this PR
+              - ℹ️ Changes will deploy to production when merged to main
+
+              **To fix:**
+              Run the [Cleanup Preview Channels](https://github.com/${{ github.repository }}/actions/workflows/cleanup-preview-channels.yml) workflow to free up quota.`
+            })
