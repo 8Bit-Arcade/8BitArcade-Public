@@ -42,7 +42,7 @@ export default function TournamentsPage() {
   const [loading, setLoading] = useState(true);
   const [entering, setEntering] = useState(false);
 
-  // ✅ HARDCODE YOUR 3 TOURNAMENTS FROM ARBISCAN (INSTANT FIX)
+  // ✅ FIXED: HARDCODE YOUR 3 REAL TOURNAMENTS FROM ARBISCAN
   useEffect(() => {
     setLoading(false);
     const realTournaments: Tournament[] = [
@@ -89,29 +89,11 @@ export default function TournamentsPage() {
     setTournaments(realTournaments);
   }, []);
 
-  // Read tournament fees (keep existing)
+  // Read tournament fees
   const { data: standardWeeklyFee } = useReadContract({
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_WEEKLY_FEE',
   });
 
-  const { data: standardMonthlyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-    abi: TOURNAMENT_MANAGER_ABI,
-    functionName: 'STANDARD_MONTHLY_FEE',
-  });
-
-  const { data: highRollerWeeklyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-    abi: TOURNAMENT_MANAGER_ABI,
-    functionName: 'HIGH_ROLLER_WEEKLY_FEE',
-  });
-
-  const { data: highRollerMonthlyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-    abi: TOURNAMENT_MANAGER_ABI,
-    functionName: 'HIGH_ROLLER_MONTHLY_FEE',
-  });
-
-  // Read prize pools (keep
+  const {
