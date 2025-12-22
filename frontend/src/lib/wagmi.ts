@@ -27,12 +27,12 @@ export const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
   chains,
   transports: {
-    [chains[0].id]: http(
-      USE_TESTNET 
-        ? 'https://arb-sepolia.public.blastapi.io'
-        : 'https://arb-mainnet.g.alchemy.com/v2/demo'
-    ),
-  },
+  [chains[0].id]: http(
+    USE_TESTNET 
+      ? 'https://sepolia-rollup.arbitrum.io/rpc'  // ← Official Arbitrum RPC
+      : 'https://arb-mainnet.g.alchemy.com/v2/demo'
+  ),
+},
   ssr: true,
 });
 
