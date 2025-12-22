@@ -1,5 +1,6 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
+import { http } from 'viem';
 import { USE_TESTNET, CONTRACTS } from '@/config/contracts';
 
 /**
@@ -26,7 +27,11 @@ export const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
   chains,
   transports: {
-    [arbitrumSepolia.id]: http('https://arb-sepolia.g.alchemy.com/v2/YOUR_KEY'), // Stable RPC
+    [chains[0].id]: http(
+      USE_TESTNET 
+        ? 'https://arb-sepolia.public.blastapi.io'
+        : 'https://arb-mainnet.g.alchemy.com/v2/demo'
+    ),
   },
   ssr: true,
 });
