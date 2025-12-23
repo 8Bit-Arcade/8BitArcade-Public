@@ -120,16 +120,140 @@ useEffect(() => {
   }
 }, [enterError]);
   
-  // Fetch tournaments from backend
+  // Fetch active tournament count
+  const { data: activeTournamentCount } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getActiveTournamentsCount',
+  });
+
+  // Fetch tournament data from blockchain
+  const { data: tournament1 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getTournament',
+    args: [1n],
+  });
+
+  const { data: tournament2 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getTournament',
+    args: [2n],
+  });
+
+  const { data: tournament3 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getTournament',
+    args: [3n],
+  });
+
+  // Check if user has entered tournaments
+  const { data: hasEntered1 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [1n, address] : undefined,
+  });
+
+  const { data: hasEntered2 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [2n, address] : undefined,
+  });
+
+  const { data: hasEntered3 } = useReadContract({
+    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [3n, address] : undefined,
+  });
+
+  // Convert blockchain data to frontend format
   useEffect(() => {
-  setLoading(false);
-  setTournaments([
-      
-      {id:1,tier:'Standard',period:'Weekly',startTime:new Date(1766347639*1000),endTime:new Date(1766952439*1000),entryFee:parseEther('2'),prizePool:parseEther('50000'),totalEntries:0,winner:'0x0000000000000000000000000000000000000000',isActive:true,status:'active'},
-{id:2,tier:'High Roller',period:'Weekly',startTime:new Date(1766347639*1000),endTime:new Date(1766952439*1000),entryFee:parseEther('10'),prizePool:parseEther('150000'),totalEntries:0,winner:'0x0000000000000000000000000000000000000000',isActive:true,status:'active'},
-{id:3,tier:'Standard',period:'Monthly',startTime:new Date(1766347639*1000),endTime:new Date(1768939639*1000),entryFee:parseEther('10'),prizePool:parseEther('100000'),totalEntries:0,winner:'0x0000000000000000000000000000000000000000',isActive:true,status:'active'}
-  ]);
-}, []);
+    const formattedTournaments: Tournament[] = [];
+
+    // Helper to map tier enum to display string
+    const getTierName = (tier: number): Tier => {
+      return tier === 0 ? 'Standard' : 'High Roller';
+    };
+
+    // Helper to map period enum to display string
+    const getPeriodName = (period: number): Period => {
+      return period === 0 ? 'Weekly' : 'Monthly';
+    };
+
+    // Helper to determine tournament status
+    const getStatus = (startTime: bigint, endTime: bigint, isActive: boolean): TournamentStatus => {
+      const now = Math.floor(Date.now() / 1000);
+      if (!isActive) return 'ended';
+      if (now < Number(startTime)) return 'upcoming';
+      if (now >= Number(startTime) && now < Number(endTime)) return 'active';
+      return 'ended';
+    };
+
+    // Process tournament 1
+    if (tournament1 && Array.isArray(tournament1) && tournament1.length >= 9) {
+      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament1;
+      formattedTournaments.push({
+        id: 1,
+        tier: getTierName(tier as number),
+        period: getPeriodName(period as number),
+        startTime: new Date(Number(startTime) * 1000),
+        endTime: new Date(Number(endTime) * 1000),
+        entryFee: entryFee as bigint,
+        prizePool: prizePool as bigint,
+        totalEntries: Number(totalEntries),
+        winner: winner as string,
+        isActive: isActive as boolean,
+        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
+        hasEntered: hasEntered1 as boolean || false,
+      });
+    }
+
+    // Process tournament 2
+    if (tournament2 && Array.isArray(tournament2) && tournament2.length >= 9) {
+      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament2;
+      formattedTournaments.push({
+        id: 2,
+        tier: getTierName(tier as number),
+        period: getPeriodName(period as number),
+        startTime: new Date(Number(startTime) * 1000),
+        endTime: new Date(Number(endTime) * 1000),
+        entryFee: entryFee as bigint,
+        prizePool: prizePool as bigint,
+        totalEntries: Number(totalEntries),
+        winner: winner as string,
+        isActive: isActive as boolean,
+        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
+        hasEntered: hasEntered2 as boolean || false,
+      });
+    }
+
+    // Process tournament 3
+    if (tournament3 && Array.isArray(tournament3) && tournament3.length >= 9) {
+      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament3;
+      formattedTournaments.push({
+        id: 3,
+        tier: getTierName(tier as number),
+        period: getPeriodName(period as number),
+        startTime: new Date(Number(startTime) * 1000),
+        endTime: new Date(Number(endTime) * 1000),
+        entryFee: entryFee as bigint,
+        prizePool: prizePool as bigint,
+        totalEntries: Number(totalEntries),
+        winner: winner as string,
+        isActive: isActive as boolean,
+        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
+        hasEntered: hasEntered3 as boolean || false,
+      });
+    }
+
+    setTournaments(formattedTournaments);
+    setLoading(formattedTournaments.length === 0 && (tournament1 === undefined || tournament2 === undefined || tournament3 === undefined));
+  }, [tournament1, tournament2, tournament3, hasEntered1, hasEntered2, hasEntered3]);
 
 
   // Check if approval is needed
@@ -145,11 +269,17 @@ useEffect(() => {
   const handleApprove = async (tournament: Tournament) => {
     if (!isConnected) return;
 
+    console.log(`🔑 Approving ${formatEther(tournament.entryFee)} 8BIT for tournament ${tournament.id}`);
+
+    // Approve 1,000,000 8BIT tokens (enough for multiple tournament entries)
+    // This prevents needing approval for every single entry
+    const approvalAmount = parseEther('1000000');
+
     approve({
       address: EIGHT_BIT_TOKEN_ADDRESS as `0x${string}`,
       abi: EIGHT_BIT_TOKEN_ABI,
       functionName: 'approve',
-      args: [TOURNAMENT_MANAGER_ADDRESS, tournament.entryFee],
+      args: [TOURNAMENT_MANAGER_ADDRESS, approvalAmount],
     });
   };
 
@@ -180,66 +310,37 @@ console.log('✅ enterTournament hook called');
 
   // Handle successful tournament entry
   useEffect(() => {
-    async function registerEntry() {
-      if (isEnterSuccess && enterHash && selectedTournament && address) {
-        try {
-          // Find the tournament
-          const tournament = tournaments.find((t) => t.id === selectedTournament);
-          if (!tournament) return;
+    async function handleEntrySuccess() {
+      if (isEnterSuccess && enterHash && selectedTournament) {
+        console.log(`✅ Tournament entry successful! Tx: ${enterHash}`);
 
-          // Call backend to register entry
-          await callFunction<
-            { tournamentId: string; player: string; txHash: string },
-            { success: boolean }
-          >('enterTournament', {
-            tournamentId: selectedTournament.toString(),
-            player: address.toLowerCase(),
-            txHash: enterHash,
-          });
-
-          // Refresh tournaments to show updated entry status
-          const result = await callFunction<
-            { player?: string },
-            { success: boolean; tournaments: any[] }
-          >('getTournaments', {
-            player: address.toLowerCase(),
-          });
-
-          if (result.success) {
-            const formattedTournaments: Tournament[] = result.tournaments.map((t: any) => {
-              const tier = t.tier === 'standard' ? 'Standard' : 'High Roller';
-              const period = t.period === 'weekly' ? 'Weekly' : 'Monthly';
-              const startTime = new Date(t.startTime.seconds * 1000);
-              const endTime = new Date(t.endTime.seconds * 1000);
-
-              return {
-                id: parseInt(t.id.replace(/\D/g, '')) || Math.floor(Math.random() * 10000),
-                tier,
-                period,
-                startTime,
-                endTime,
-                entryFee: parseEther(t.entryFee.toString()),
-                prizePool: parseEther(t.prizePool.toString()),
-                totalEntries: t.participants?.length || 0,
-                winner: t.winnerId || '0x0000000000000000000000000000000000000000',
-                isActive: t.status === 'active',
-                status: t.status as TournamentStatus,
-                hasEntered: t.hasEntered || false,
-              };
+        // Optional: Notify backend for analytics/indexing (non-critical)
+        // The blockchain is the source of truth
+        if (address) {
+          try {
+            await callFunction('recordTournamentEntry', {
+              tournamentId: selectedTournament.toString(),
+              player: address.toLowerCase(),
+              txHash: enterHash,
+            }).catch(err => {
+              console.warn('Backend notification failed (non-critical):', err);
             });
-
-            setTournaments(formattedTournaments);
+          } catch (error) {
+            // Ignore backend errors - blockchain entry succeeded
+            console.warn('Backend notification skipped:', error);
           }
-        } catch (error) {
-          console.error('Error registering tournament entry:', error);
-        } finally {
-          setEntering(false);
         }
+
+        setEntering(false);
+        setSelectedTournament(null);
+
+        // Tournament data will auto-refresh via useReadContract hooks
+        // The hasEntered check will update automatically
       }
     }
 
-    registerEntry();
-  }, [isEnterSuccess, enterHash, selectedTournament, address, tournaments]);
+    handleEntrySuccess();
+  }, [isEnterSuccess, enterHash, selectedTournament, address]);
 
   const filteredTournaments =
     filter === 'all'
