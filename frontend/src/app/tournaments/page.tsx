@@ -125,21 +125,21 @@ export default function TournamentsPage() {
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
-    args: [1n],
+    args: [BigInt(1)],
   });
 
   const { data: tournament2 } = useReadContract({
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
-    args: [2n],
+    args: [BigInt(2)],
   });
 
   const { data: tournament3 } = useReadContract({
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
-    args: [3n],
+    args: [BigInt(3)],
   });
 
   // Check if user has entered tournaments
@@ -147,21 +147,21 @@ export default function TournamentsPage() {
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
-    args: address ? [1n, address] : undefined,
+    args: address ? [BigInt(1), address] : undefined,
   });
 
   const { data: hasEntered2 } = useReadContract({
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
-    args: address ? [2n, address] : undefined,
+    args: address ? [BigInt(2), address] : undefined,
   });
 
   const { data: hasEntered3 } = useReadContract({
     address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
-    args: address ? [3n, address] : undefined,
+    args: address ? [BigInt(3), address] : undefined,
   });
 
   // Convert blockchain data to frontend format
