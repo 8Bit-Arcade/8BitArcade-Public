@@ -158,11 +158,11 @@ export default function TournamentsPage() {
   });
 
   const { data: hasEntered3 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-    abi: TOURNAMENT_MANAGER_ABI,
-    functionName: 'hasPlayerEntered',
-    args: [TOURNAMENT_MANAGER_ADDRESS as `0x${string}`, approvalAmount],
-  });
+  address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+  abi: TOURNAMENT_MANAGER_ABI,
+  functionName: 'hasPlayerEntered',
+  args: address ? [BigInt(3), address] : undefined,
+});
 
   // Convert blockchain data to frontend format
   useEffect(() => {
