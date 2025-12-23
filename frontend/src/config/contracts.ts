@@ -126,17 +126,92 @@ export const REWARDS_DISTRIBUTOR_ADDRESS = '0x3879aA591532B8a7BCe322Edff8fD09F7F
  */
 
 export const EIGHT_BIT_TOKEN_ABI = [
-  "function balanceOf(address account) view returns (uint256)",
-  "function transfer(address to, uint256 amount) returns (bool)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function totalSupply() view returns (uint256)",
-  "function name() view returns (string)",
-  "function symbol() view returns (string)",
-  "function decimals() view returns (uint8)",
-  "event Transfer(address indexed from, address indexed to, uint256 value)",
-  "event Approval(address indexed owner, address indexed spender, uint256 value)",
-];
+  {
+    inputs: [{ name: 'account', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'to', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    name: 'transfer',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+    ],
+    name: 'allowance',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: 'from', type: 'address' },
+      { indexed: true, name: 'to', type: 'address' },
+      { name: 'value', type: 'uint256' },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: 'owner', type: 'address' },
+      { indexed: true, name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+    ],
+    name: 'Approval',
+    type: 'event',
+  },
+] as const;
 
 export const GAME_REWARDS_ABI = [
   "function dailyRewardPool() view returns (uint256)",
@@ -148,25 +223,159 @@ export const GAME_REWARDS_ABI = [
 ];
 
 export const TOURNAMENT_MANAGER_ABI = [
-  "function enterTournament(uint256 tournamentId) external",
-  "function getTournament(uint256 tournamentId) view returns (uint8 tier, uint8 period, uint256 startTime, uint256 endTime, uint256 entryFee, uint256 prizePool, uint256 totalEntries, address winner, bool isActive)",
-  "function hasPlayerEntered(uint256 tournamentId, address player) view returns (bool)",
-  "function getPlayerScore(uint256 tournamentId, address player) view returns (uint256)",
-  "function getParticipants(uint256 tournamentId) view returns (address[])",
-  "function getActiveTournamentsCount() view returns (uint256)",
-  "function STANDARD_WEEKLY_FEE() view returns (uint256)",
-  "function STANDARD_MONTHLY_FEE() view returns (uint256)",
-  "function HIGH_ROLLER_WEEKLY_FEE() view returns (uint256)",
-  "function HIGH_ROLLER_MONTHLY_FEE() view returns (uint256)",
-  "function STANDARD_WEEKLY_PRIZE() view returns (uint256)",
-  "function STANDARD_MONTHLY_PRIZE() view returns (uint256)",
-  "function HIGH_ROLLER_WEEKLY_PRIZE() view returns (uint256)",
-  "function HIGH_ROLLER_MONTHLY_PRIZE() view returns (uint256)",
-  "event TournamentCreated(uint256 indexed tournamentId, uint8 tier, uint8 period, uint256 startTime, uint256 endTime, uint256 entryFee, uint256 prizePool)",
-  "event PlayerEntered(uint256 indexed tournamentId, address indexed player, uint256 entryFee)",
-  "event WinnerDeclared(uint256 indexed tournamentId, address indexed winner, uint256 prizeAmount)",
-  "event FeeBurned(uint256 indexed tournamentId, uint256 amount)",
-];
+  {
+    "inputs": [{"name": "tournamentId", "type": "uint256"}],
+    "name": "enterTournament",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"name": "tournamentId", "type": "uint256"}],
+    "name": "getTournament",
+    "outputs": [
+      {"name": "tier", "type": "uint8"},
+      {"name": "period", "type": "uint8"},
+      {"name": "startTime", "type": "uint256"},
+      {"name": "endTime", "type": "uint256"},
+      {"name": "entryFee", "type": "uint256"},
+      {"name": "prizePool", "type": "uint256"},
+      {"name": "totalEntries", "type": "uint256"},
+      {"name": "winner", "type": "address"},
+      {"name": "isActive", "type": "bool"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"name": "tournamentId", "type": "uint256"}, {"name": "player", "type": "address"}],
+    "name": "hasPlayerEntered",
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"name": "tournamentId", "type": "uint256"}, {"name": "player", "type": "address"}],
+    "name": "getPlayerScore",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"name": "tournamentId", "type": "uint256"}],
+    "name": "getParticipants",
+    "outputs": [{"name": "", "type": "address[]"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActiveTournamentsCount",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STANDARD_WEEKLY_FEE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STANDARD_MONTHLY_FEE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HIGH_ROLLER_WEEKLY_FEE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HIGH_ROLLER_MONTHLY_FEE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STANDARD_WEEKLY_PRIZE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "STANDARD_MONTHLY_PRIZE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HIGH_ROLLER_WEEKLY_PRIZE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HIGH_ROLLER_MONTHLY_PRIZE",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "tournamentId", "type": "uint256"},
+      {"name": "tier", "type": "uint8"},
+      {"name": "period", "type": "uint8"},
+      {"name": "startTime", "type": "uint256"},
+      {"name": "endTime", "type": "uint256"},
+      {"name": "entryFee", "type": "uint256"},
+      {"name": "prizePool", "type": "uint256"}
+    ],
+    "name": "TournamentCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "tournamentId", "type": "uint256"},
+      {"indexed": true, "name": "player", "type": "address"},
+      {"name": "entryFee", "type": "uint256"}
+    ],
+    "name": "PlayerEntered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "tournamentId", "type": "uint256"},
+      {"indexed": true, "name": "winner", "type": "address"},
+      {"name": "prizeAmount", "type": "uint256"}
+    ],
+    "name": "WinnerDeclared",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "tournamentId", "type": "uint256"},
+      {"name": "amount", "type": "uint256"}
+    ],
+    "name": "FeeBurned",
+    "type": "event"
+  }
+] as const;
+
 
 export const TOKEN_SALE_ABI = [
   "function buyWithEth() external payable",
