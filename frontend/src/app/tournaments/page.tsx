@@ -164,56 +164,66 @@ useEffect(() => {
   const handleApprove = async (tournament: Tournament) => {
     if (!isConnected) return;
 
+    console.log(`🔑 Approving 8BIT tokens for tournament ${tournament.id}`);
+    console.log(`💰 Entry fee: ${formatEther(tournament.entryFee)} 8BIT`);
+
+    // Approve 1,000,000 8BIT tokens (enough for multiple tournament entries)
+    // This prevents users from needing to approve every time
+    const approvalAmount = parseEther('1000000');
+
     approve({
       address: EIGHT_BIT_TOKEN_ADDRESS as `0x${string}`,
       abi: EIGHT_BIT_TOKEN_ABI,
       functionName: 'approve',
-      args: [TOURNAMENT_MANAGER_ADDRESS, tournament.entryFee],
+      args: [TOURNAMENT_MANAGER_ADDRESS, approvalAmount],
     });
+
+    console.log('✅ Approval transaction sent');
   };
 
   const handleEnter = async (tournamentId: string) => {
-  console.log('ENTER CLICKED - tournament:', tournamentId);
-  if (!address || !isConnected) {
-    console.log('Wallet not connected');
-    return;
-  }
-  
-  setEntering(true);
-  
-  try {
-    // Use your existing tournament data (already loaded)
+    console.log('🎮 ENTER CLICKED - tournament:', tournamentId);
+
+    if (!address || !isConnected) {
+      console.log('❌ Wallet not connected');
+      return;
+    }
+
+    // Find the tournament
     const tournament = tournaments.find(t => t.id === parseInt(tournamentId));
-    if (!tournament) return;
-    
-    const entryFee8BIT = tournament.entryFee;
-    
-    // 1. Approve 8BIT tokens
-    console.log('Approving 8BIT tokens...');
-    await approve8BIT({
-      address: EIGHT_BIT_TOKEN_ADDRESS as `0x${string}`,
-      abi: EIGHT_BIT_TOKEN_ABI,
-      functionName: 'approve',
-      args: [TOURNAMENT_MANAGER_ADDRESS, entryFee8BIT],
+    if (!tournament) {
+      console.error('❌ Tournament not found:', tournamentId);
+      return;
+    }
+
+    console.log('📊 Tournament data:', {
+      id: tournament.id,
+      entryFee: formatEther(tournament.entryFee),
+      allowance: allowance ? formatEther(allowance as bigint) : '0',
     });
-    
-    // 2. Enter tournament with small ETH test fee
-    console.log('Entering tournament...');
-     enterTournament({
-	 address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-	 abi: TOURNAMENT_MANAGER_ABI,
-	 functionName: 'enterTournament',
-	 args: [BigInt(tournamentId)],
-	});
 
+    // Check if we have sufficient allowance
+    if (!allowance || (allowance as bigint) < tournament.entryFee) {
+      console.log('⚠️ Insufficient allowance - user needs to approve first');
+      // Set selected tournament so approval button appears
+      setSelectedTournament(parseInt(tournamentId));
+      return;
+    }
 
-    
-  } catch (error) {
-    console.error('Entry failed:', error);
-  } finally {
-    setEntering(false);
-  }
-};
+    // We have sufficient allowance, proceed with entry
+    console.log('✅ Sufficient allowance detected, entering tournament...');
+    setEntering(true);
+    setSelectedTournament(parseInt(tournamentId));
+
+    enterTournament({
+      address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+      abi: TOURNAMENT_MANAGER_ABI,
+      functionName: 'enterTournament',
+      args: [BigInt(tournamentId)],
+    });
+
+    console.log('🚀 Tournament entry transaction sent');
+  };
 
 
   // Handle successful tournament entry
