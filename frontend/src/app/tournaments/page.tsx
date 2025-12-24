@@ -269,7 +269,8 @@ approve({
   functionName: 'approve',
   args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER, approvalAmount],
 });
-
+};
+  
   const handleEnter = async (tournamentId: string) => {
     console.log('🎮 ENTER CLICKED - tournament:', tournamentId);
 
