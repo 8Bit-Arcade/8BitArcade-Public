@@ -7,12 +7,8 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { formatNumber, formatTimeRemaining } from '@/lib/utils';
 import { callFunction } from '@/lib/firebase-functions';
-import {
-  TOURNAMENT_MANAGER_ADDRESS,
-  TOURNAMENT_MANAGER_ABI,
-  EIGHT_BIT_TOKEN_ADDRESS,
-  EIGHT_BIT_TOKEN_ABI,
-} from '@/config/contracts';
+import { TESTNET_CONTRACTS, TOURNAMENT_MANAGER_ABI, EIGHT_BIT_TOKEN_ABI } from '@/config/contracts';
+import { parseUnits } from 'ethers';
 
 type Tier = 'Standard' | 'High Roller';
 type Period = 'Weekly' | 'Monthly';
@@ -44,60 +40,60 @@ export default function TournamentsPage() {
 
   // Read tournament fees
   const { data: standardWeeklyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_WEEKLY_FEE',
   });
 
   const { data: standardMonthlyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_MONTHLY_FEE',
   });
 
   const { data: highRollerWeeklyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_WEEKLY_FEE',
   });
 
   const { data: highRollerMonthlyFee } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_MONTHLY_FEE',
   });
 
   // Read prize pools
   const { data: standardWeeklyPrize } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_WEEKLY_PRIZE',
   });
 
   const { data: standardMonthlyPrize } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_MONTHLY_PRIZE',
   });
 
   const { data: highRollerWeeklyPrize } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_WEEKLY_PRIZE',
   });
 
   const { data: highRollerMonthlyPrize } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_MONTHLY_PRIZE',
   });
 
   // Check token allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: EIGHT_BIT_TOKEN_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
     abi: EIGHT_BIT_TOKEN_ABI,
     functionName: 'allowance',
-    args: address ? [address, TOURNAMENT_MANAGER_ADDRESS as `0x${string}`] : undefined,
+    args: address ? [address, TESTNET_CONTRACTS.TOURNAMENT_MANAGER] : undefined,
   });
 
   // Approve tokens
@@ -138,21 +134,21 @@ export default function TournamentsPage() {
 
   // Fetch tournament data from blockchain
   const { data: tournament1 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(1)],
   });
 
   const { data: tournament2 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(2)],
   });
 
   const { data: tournament3 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(3)],
@@ -160,25 +156,25 @@ export default function TournamentsPage() {
 
   // Check if user has entered tournaments
   const { data: hasEntered1 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(1), address] : undefined,
   });
 
   const { data: hasEntered2 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(2), address] : undefined,
   });
 
   const { data: hasEntered3 } = useReadContract({
-    address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
-    abi: TOURNAMENT_MANAGER_ABI,
-    functionName: 'hasPlayerEntered',
-    args: address ? [BigInt(3), address] : undefined,
-  });
+  address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+  abi: TOURNAMENT_MANAGER_ABI,
+  functionName: 'hasPlayerEntered',
+  args: address ? [BigInt(3), address] : undefined,
+});
 
   // Convert blockchain data to frontend format
   useEffect(() => {
@@ -275,25 +271,22 @@ export default function TournamentsPage() {
   }, [selectedTournament, allowance, tournaments]);
 
   const handleApprove = async (tournament: Tournament) => {
-    if (!isConnected) return;
+  if (!isConnected) return;
 
-    console.log(`🔑 Approving 8BIT tokens for tournament ${tournament.id}`);
-    console.log(`💰 Entry fee: ${formatEther(tournament.entryFee)} 8BIT`);
+  console.log(`🔑 Approving 8BIT tokens for tournament ${tournament.id}`);
+  console.log(`💰 Entry fee: ${formatEther(tournament.entryFee)} 8BIT`);
 
-    // Approve 1,000,000 8BIT tokens (enough for multiple tournament entries)
-    // This prevents users from needing to approve every time
-    const approvalAmount = parseEther('1000000');
+  // Approve exactly the tournament entry fee
+  const approvalAmount = tournament.entryFee;
 
-    approve({
-      address: EIGHT_BIT_TOKEN_ADDRESS as `0x${string}`,
-      abi: EIGHT_BIT_TOKEN_ABI,
-      functionName: 'approve',
-      args: [TOURNAMENT_MANAGER_ADDRESS, approvalAmount],
-    });
-
-    console.log('✅ Approval transaction sent');
-  };
-
+approve({
+  address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
+  abi: EIGHT_BIT_TOKEN_ABI,
+  functionName: 'approve',
+  args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER, approvalAmount],
+});
+};
+  
   const handleEnter = async (tournamentId: string) => {
     console.log('🎮 ENTER CLICKED - tournament:', tournamentId);
 
@@ -329,7 +322,7 @@ export default function TournamentsPage() {
     setSelectedTournament(parseInt(tournamentId));
 
     enterTournament({
-      address: TOURNAMENT_MANAGER_ADDRESS as `0x${string}`,
+      address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
       abi: TOURNAMENT_MANAGER_ABI,
       functionName: 'enterTournament',
       args: [BigInt(tournamentId)],
