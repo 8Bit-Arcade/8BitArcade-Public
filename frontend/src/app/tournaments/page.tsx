@@ -89,7 +89,7 @@ export default function TournamentsPage() {
   });
 
   // Check token allowance
-  const { data: allowance } = useReadContract({
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
     abi: EIGHT_BIT_TOKEN_ABI,
     functionName: 'allowance',
@@ -107,6 +107,22 @@ export default function TournamentsPage() {
   const { isSuccess: isEnterSuccess } = useWaitForTransactionReceipt({
     hash: enterHash,
   });
+
+  // Handle successful approval - refetch allowance
+  useEffect(() => {
+    if (isApproveSuccess && approveHash) {
+      console.log('✅ Approval confirmed! Tx:', approveHash);
+      console.log('🔄 Refetching allowance...');
+
+      // Refetch allowance to update UI
+      refetchAllowance?.();
+
+      // Clear needsApproval flag after a brief delay to allow refetch
+      setTimeout(() => {
+        console.log('✅ Approval complete - button should change to "Enter Now"');
+      }, 1000);
+    }
+  }, [isApproveSuccess, approveHash, refetchAllowance]);
 
   // DEBUG: Track wagmi errors
   useEffect(() => {
