@@ -15,8 +15,8 @@ This page contains all official smart contract addresses for 8-Bit Arcade. **Ver
 |----------|---------|---------|
 | **8BIT Token** | [`0xC1C665D66A9F8433cBBD4e70a543eDc19C56707d`](https://sepolia.arbiscan.io/address/0xC1C665D66A9F8433cBBD4e70a543eDc19C56707d) | ERC-20 governance & reward token |
 | **Game Rewards** | [`0x528c9130A05bEf9a9632FbB3D8735287A2e44a4E`](https://sepolia.arbiscan.io/address/0x528c9130A05bEf9a9632FbB3D8735287A2e44a4E) | Distributes daily rewards to top players |
-| **Tournament Manager** | [`0xe06C92f15F426b0f6Fccb66302790E533C5Dfbb7`](https://sepolia.arbiscan.io/address/0xe06C92f15F426b0f6Fccb66302790E533C5Dfbb7) | Manages tournament entries & prizes |
-| **Tournament Payments** | [`0xb52aE08daFC310E6f858957Fa0a317fEF341dE85`](https://sepolia.arbiscan.io/address/0xb52aE08daFC310E6f858957Fa0a317fEF341dE85) | Handles tournament entry fees (USDC/ETH) |
+| **Tournament Manager** | [`0xe06C92f15F426b0f6Fccb66302790E533C5Dfbb7`](https://sepolia.arbiscan.io/address/0xe06C92f15F426b0f6Fccb66302790E533C5Dfbb7) | Manages tournament entries & prizes (8BIT fees) |
+| **Tournament Payments** | [`0xb52aE08daFC310E6f858957Fa0a317fEF341dE85`](https://sepolia.arbiscan.io/address/0xb52aE08daFC310E6f858957Fa0a317fEF341dE85) | Reserved for future payment features |
 | **Token Sale** | [`0x057B1130dD6E8FcBc144bb34172e45293C6839fE`](https://sepolia.arbiscan.io/address/0x057B1130dD6E8FcBc144bb34172e45293C6839fE) | Public token sale ($100K raise) |
 | **Treasury Gas Manager** | [`0x39F49a46CAB85CF079Cde25EAE311A563d3952EC`](https://sepolia.arbiscan.io/address/0x39F49a46CAB85CF079Cde25EAE311A563d3952EC) | Automates gas wallet refills |
 | **Testnet Faucet** | [`0x25A4109083f882FCFbC9Ea7cE5Cd942dbae38952`](https://sepolia.arbiscan.io/address/0x25A4109083f882FCFbC9Ea7cE5Cd942dbae38952) | Free test tokens (testnet only) |
@@ -25,7 +25,7 @@ This page contains all official smart contract addresses for 8-Bit Arcade. **Ver
 
 | Token | Address | Purpose |
 |-------|---------|---------|
-| **USDC (Testnet)** | [`0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d`](https://sepolia.arbiscan.io/address/0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d) | Test USDC for tournament fees |
+| **USDC (Testnet)** | [`0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d`](https://sepolia.arbiscan.io/address/0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d) | Test USDC (for future features) |
 
 ### Network Information
 

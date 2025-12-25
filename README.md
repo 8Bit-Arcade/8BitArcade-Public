@@ -63,7 +63,7 @@ A blockchain-powered retro gaming platform built on Arbitrum. Play classic 8-bit
 | **Marketing** | 3% | 15M | 6-12 months |
 | **Team** | 1% | 5M | 2-3 years (vested) |
 
-**Deflationary Mechanism:** 50% of tournament fees buyback & burn 8BIT
+**Deflationary Mechanism:** 50% of tournament entry fees burned directly
 
 **See [contracts/README.md](contracts/README.md) for full token distribution details**
 
