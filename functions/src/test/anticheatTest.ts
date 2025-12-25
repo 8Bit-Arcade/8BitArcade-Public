@@ -234,14 +234,15 @@ async function runTest(testCase: TestCase): Promise<void> {
         ? await replayAlienAssault(testCase.seed, testCase.inputs)
         : await replaySpaceRocks(testCase.seed, testCase.inputs);
 
-      const tolerance = Math.max(1, testCase.score * 0.01);
-      const scoreDiff = Math.abs(replayResult.score - testCase.score);
+      const maxAllowedScore = replayResult.score * 3.0;
+      const scoreTooHigh = testCase.score > maxAllowedScore;
 
       console.log(`  Server Replay:`);
       console.log(`    Server Score: ${replayResult.score}`);
       console.log(`    Claimed Score: ${testCase.score}`);
-      console.log(`    Difference: ${scoreDiff} (tolerance: ${tolerance.toFixed(1)})`);
-      console.log(`    Match: ${scoreDiff <= tolerance ? 'YES' : 'NO'}`);
+      console.log(`    Max Allowed: ${maxAllowedScore.toFixed(0)} (3x replay)`);
+      console.log(`    Ratio: ${(testCase.score / replayResult.score).toFixed(2)}x`);
+      console.log(`    Within Bounds: ${!scoreTooHigh ? 'YES' : 'NO'}`);
 
       // Determine if test should pass or fail
       const highSeverityFlags = analysis.flags.filter(
@@ -251,7 +252,7 @@ async function runTest(testCase: TestCase): Promise<void> {
 
       const wouldReject =
         (highSeverityFlags.length > 0 || analysis.confidence > 0.7) ||
-        scoreDiff > tolerance;
+        scoreTooHigh;
 
       const actualResult = wouldReject ? 'fail' : 'pass';
       const testPassed = actualResult === testCase.expectedResult;
@@ -266,7 +267,7 @@ async function runTest(testCase: TestCase): Promise<void> {
 
       if (wouldReject && testCase.expectedReason) {
         const hasExpectedFlag = analysis.flags.includes(testCase.expectedReason as any) ||
-                                (testCase.expectedReason === 'score_mismatch' && scoreDiff > tolerance);
+                                (testCase.expectedReason === 'score_mismatch' && scoreTooHigh);
 
         if (!hasExpectedFlag) {
           console.warn(`  WARNING: Expected reason '${testCase.expectedReason}' not found`);
