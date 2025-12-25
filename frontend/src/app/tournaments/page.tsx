@@ -40,60 +40,60 @@ export default function TournamentsPage() {
 
   // Read tournament fees
   const { data: standardWeeklyFee } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_WEEKLY_FEE',
   });
 
   const { data: standardMonthlyFee } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_MONTHLY_FEE',
   });
 
   const { data: highRollerWeeklyFee } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_WEEKLY_FEE',
   });
 
   const { data: highRollerMonthlyFee } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_MONTHLY_FEE',
   });
 
   // Read prize pools
   const { data: standardWeeklyPrize } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_WEEKLY_PRIZE',
   });
 
   const { data: standardMonthlyPrize } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'STANDARD_MONTHLY_PRIZE',
   });
 
   const { data: highRollerWeeklyPrize } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_WEEKLY_PRIZE',
   });
 
   const { data: highRollerMonthlyPrize } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'HIGH_ROLLER_MONTHLY_PRIZE',
   });
 
   // Check token allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
+    address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN as `0x${string}`,
     abi: EIGHT_BIT_TOKEN_ABI,
     functionName: 'allowance',
-    args: address ? [address, TESTNET_CONTRACTS.TOURNAMENT_MANAGER] : undefined,
+    args: address ? [address, TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`] : undefined,
   });
 
   // Approve tokens
@@ -135,35 +135,35 @@ export default function TournamentsPage() {
 
   // Fetch tournament data from blockchain
   const { data: tournament1 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(1)],
   });
 
   const { data: tournament2 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(2)],
   });
 
   const { data: tournament3 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(3)],
   });
 
   const { data: tournament4 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(4)],
   });
 
   const { data: tournament5 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(5)],
@@ -171,35 +171,35 @@ export default function TournamentsPage() {
 
   // Check if user has entered tournaments
   const { data: hasEntered1 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(1), address] : undefined,
   });
 
   const { data: hasEntered2 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(2), address] : undefined,
   });
 
   const { data: hasEntered3 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(3), address] : undefined,
   });
 
   const { data: hasEntered4 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(4), address] : undefined,
   });
 
   const { data: hasEntered5 } = useReadContract({
-    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(5), address] : undefined,
@@ -347,10 +347,10 @@ export default function TournamentsPage() {
   const approvalAmount = tournament.entryFee;
 
 approve({
-  address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
+  address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN as `0x${string}`,
   abi: EIGHT_BIT_TOKEN_ABI,
   functionName: 'approve',
-  args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER, approvalAmount],
+  args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`, approvalAmount],
 });
 };
   
@@ -389,7 +389,7 @@ approve({
     setSelectedTournament(parseInt(tournamentId));
 
     enterTournament({
-      address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+      address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
       abi: TOURNAMENT_MANAGER_ABI,
       functionName: 'enterTournament',
       args: [BigInt(tournamentId)],
