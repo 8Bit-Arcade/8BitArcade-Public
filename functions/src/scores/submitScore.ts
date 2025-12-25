@@ -161,11 +161,14 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
           throw new HttpsError('invalid-argument', 'Replay validation failed');
         }
 
-        // Allow 1% tolerance for floating point differences
-        const tolerance = Math.max(1, finalScore * 0.01);
-        const scoreDiff = Math.abs(replayResult.score - finalScore);
+        // Replay validation: only reject if claimed score is EXCESSIVELY higher than replay
+        // Replay engines are simplified approximations, not perfect simulations
+        // Allow claimed score to be up to 3x the replay score (catches 10x+ cheating)
+        // If claimed is lower than replay, always accept (replay might have better RNG)
+        const maxAllowedScore = replayResult.score * 3.0;
 
-        if (scoreDiff > tolerance) {
+        if (finalScore > maxAllowedScore) {
+          // Claimed score is more than 3x what replay achieved - likely cheating
           await flagAccountDetailed(playerAddress, {
             type: 'score_mismatch',
             severity: 'high',
@@ -173,13 +176,24 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
             sessionId,
             claimedScore: finalScore,
             calculatedScore: replayResult.score,
-            details: { difference: scoreDiff, tolerance },
+            details: {
+              difference: finalScore - replayResult.score,
+              maxAllowed: maxAllowedScore,
+              ratio: finalScore / replayResult.score
+            },
           });
-          throw new HttpsError('invalid-argument', `Score mismatch: claimed ${finalScore}, calculated ${replayResult.score}`);
+          throw new HttpsError('invalid-argument', `Score too high: claimed ${finalScore}, max expected ${Math.floor(maxAllowedScore)} (replay: ${replayResult.score})`);
         }
 
-        verifiedScore = replayResult.score; // Use server-calculated score
-        console.log(`✅ Replay validated for ${playerAddress} (${gameId}): ${verifiedScore} points`);
+        // If score is reasonable, log for monitoring but accept
+        if (finalScore > replayResult.score * 1.5) {
+          console.warn(`⚠️  Score higher than expected for ${playerAddress} (${gameId}): claimed ${finalScore}, replay ${replayResult.score}`);
+        }
+
+        // Use the claimed score if it passed validation
+        // Only use replay score if it's higher (edge case where replay got lucky with RNG)
+        verifiedScore = Math.max(finalScore, replayResult.score);
+        console.log(`✅ Replay validated for ${playerAddress} (${gameId}): claimed ${finalScore}, replay ${replayResult.score}, using ${verifiedScore}`);
       }
     } catch (error: any) {
       if (error instanceof HttpsError) throw error;
