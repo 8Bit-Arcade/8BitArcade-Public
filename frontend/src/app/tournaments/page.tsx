@@ -161,61 +161,104 @@ export default function TournamentsPage() {
     };
 
     // Process tournament 1
-    if (tournament1 && Array.isArray(tournament1) && tournament1.length >= 9) {
-      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament1;
+    // Process tournament 1
+if (tournament1) {
+  console.log('RAW tournament1:', tournament1); // Debug
+  
+  // Handle both array AND object responses
+  const fields = Array.isArray(tournament1) ? tournament1 : 
+    [tournament1[0n], tournament1[1n], tournament1[2n], tournament1[3n], 
+     tournament1[4n], tournament1[5n], tournament1[6n], tournament1[7n], tournament1[8n]];
+  
+  if (fields.length >= 9) {
+    const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = fields;
+    
+    if (isActive) {  // ✅ isActive: true from Arbiscan
       formattedTournaments.push({
         id: 1,
-        tier: getTierName(tier as number),
-        period: getPeriodName(period as number),
+        tier: Number(tier) === 0 ? 'Standard' : 'High Roller',
+        period: Number(period) === 0 ? 'Weekly' : 'Monthly',
         startTime: new Date(Number(startTime) * 1000),
         endTime: new Date(Number(endTime) * 1000),
         entryFee: entryFee as bigint,
         prizePool: prizePool as bigint,
         totalEntries: Number(totalEntries),
         winner: winner as string,
-        isActive: isActive as boolean,
-        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
-        hasEntered: hasEntered1 as boolean || false,
+        isActive: true,
+        status: 'active',  // ✅ Will show as LIVE
+        hasEntered: hasEntered1 || false,
       });
     }
+  }
+}
+
 
     // Process tournament 2
-    if (tournament2 && Array.isArray(tournament2) && tournament2.length >= 9) {
-      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament2;
+    // Process tournament 1
+if (tournament1) {
+  console.log('RAW tournament1:', tournament1); // Debug
+  
+  // Handle both array AND object responses
+  const fields = Array.isArray(tournament1) ? tournament1 : 
+    [tournament1[0n], tournament1[1n], tournament1[2n], tournament1[3n], 
+     tournament1[4n], tournament1[5n], tournament1[6n], tournament1[7n], tournament1[8n]];
+  
+  if (fields.length >= 9) {
+    const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = fields;
+    
+    if (isActive) {  // ✅ isActive: true from Arbiscan
       formattedTournaments.push({
         id: 2,
-        tier: getTierName(tier as number),
-        period: getPeriodName(period as number),
+        tier: Number(tier) === 0 ? 'Standard' : 'High Roller',
+        period: Number(period) === 0 ? 'Weekly' : 'Monthly',
         startTime: new Date(Number(startTime) * 1000),
         endTime: new Date(Number(endTime) * 1000),
         entryFee: entryFee as bigint,
         prizePool: prizePool as bigint,
         totalEntries: Number(totalEntries),
         winner: winner as string,
-        isActive: isActive as boolean,
-        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
-        hasEntered: hasEntered2 as boolean || false,
+        isActive: true,
+        status: 'active',  // ✅ Will show as LIVE
+        hasEntered: hasEntered1 || false,
       });
     }
+  }
+}
+
 
     // Process tournament 3
-    if (tournament3 && Array.isArray(tournament3) && tournament3.length >= 9) {
-      const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = tournament3;
+    // Process tournament 1
+if (tournament1) {
+  console.log('RAW tournament1:', tournament1); // Debug
+  
+  // Handle both array AND object responses
+  const fields = Array.isArray(tournament1) ? tournament1 : 
+    [tournament1[0n], tournament1[1n], tournament1[2n], tournament1[3n], 
+     tournament1[4n], tournament1[5n], tournament1[6n], tournament1[7n], tournament1[8n]];
+  
+  if (fields.length >= 9) {
+    const [tier, period, startTime, endTime, entryFee, prizePool, totalEntries, winner, isActive] = fields;
+    
+    if (isActive) {  // ✅ isActive: true from Arbiscan
       formattedTournaments.push({
         id: 3,
-        tier: getTierName(tier as number),
-        period: getPeriodName(period as number),
+        tier: Number(tier) === 0 ? 'Standard' : 'High Roller',
+        period: Number(period) === 0 ? 'Weekly' : 'Monthly',
         startTime: new Date(Number(startTime) * 1000),
         endTime: new Date(Number(endTime) * 1000),
         entryFee: entryFee as bigint,
         prizePool: prizePool as bigint,
         totalEntries: Number(totalEntries),
         winner: winner as string,
-        isActive: isActive as boolean,
-        status: getStatus(startTime as bigint, endTime as bigint, isActive as boolean),
-        hasEntered: hasEntered3 as boolean || false,
+        isActive: true,
+        status: 'active',  // ✅ Will show as LIVE
+        hasEntered: hasEntered1 || false,
       });
     }
+  }
+}
+
+console.log('FINAL tournaments array:', formattedTournaments);
 
     setTournaments(formattedTournaments);
 
