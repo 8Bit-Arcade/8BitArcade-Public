@@ -65,12 +65,12 @@ Unlike typical projects that distribute rewards over 20-30 years, 8-Bit Arcade u
 
 ### 🔥 Deflationary Model
 
-50% of all tournament entry fees are used to **buyback and burn** 8BIT tokens:
+50% of all tournament entry fees are **burned**, permanently reducing supply:
 
-1. Players pay tournament fees in USDC
-2. 50% automatically swapped to 8BIT via Uniswap V3
-3. Purchased tokens sent to burn address (permanently removed)
-4. Remaining 50% funds prize pools
+1. Players pay tournament fees in 8BIT tokens
+2. 50% of entry fees sent to burn address (permanently removed)
+3. Remaining 50% funds prize pools
+4. Winner receives prize pool in 8BIT tokens
 
 **Effect:** As adoption grows, circulating supply decreases, potentially increasing token value.
 

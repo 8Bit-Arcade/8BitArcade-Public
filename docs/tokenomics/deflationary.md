@@ -2,26 +2,24 @@
 
 ## How 8BIT Supply Decreases Over Time
 
-Unlike inflationary tokens that constantly increase supply, 8BIT uses a **buyback and burn mechanism** to permanently remove tokens from circulation.
+Unlike inflationary tokens that constantly increase supply, 8BIT uses a **direct burn mechanism** to permanently remove tokens from circulation.
 
-## The Buyback & Burn Mechanism
+## The Burn Mechanism
 
 ### How It Works
 
 ```
-1. Player pays $10 USDC to enter tournament
+1. Player pays 2,000 8BIT to enter Standard Weekly tournament
    ↓
-2. Tournament contract receives $10 USDC
+2. Tournament contract receives 2,000 8BIT
    ↓
 3. Smart contract automatically splits payment:
-   • 50% ($5) → Prize pool for winners
-   • 50% ($5) → Buyback contract
+   • 50% (1,000 8BIT) → Prize pool for winners
+   • 50% (1,000 8BIT) → Burn address
    ↓
-4. Buyback contract swaps $5 USDC for 8BIT via Uniswap V3
+4. Burned tokens sent to 0x000...dEaD address
    ↓
-5. Purchased 8BIT sent to burn address (0x000...dead)
-   ↓
-6. Tokens permanently removed from circulation ♨️
+5. Tokens permanently removed from circulation ♨️
 ```
 
 ### Key Features
@@ -31,6 +29,15 @@ Unlike inflationary tokens that constantly increase supply, 8BIT uses a **buybac
 ✅ **Transparent** - All burns visible on blockchain
 ✅ **Irreversible** - Tokens can never be recovered
 ✅ **Continuous** - Every tournament contributes
+
+## Tournament Entry Fees (Current)
+
+| Tournament Type | Entry Fee (8BIT) | Burned per Entry | Prize Pool |
+|----------------|------------------|------------------|------------|
+| Standard Weekly | 2,000 | 1,000 | 50,000 |
+| Standard Monthly | 10,000 | 5,000 | 100,000 |
+| High Roller Weekly | 10,000 | 5,000 | 150,000 |
+| High Roller Monthly | 50,000 | 25,000 | 500,000 |
 
 ## Burn Address
 
@@ -45,48 +52,48 @@ Unlike inflationary tokens that constantly increase supply, 8BIT uses a **buybac
 
 ### Monthly Burn Examples
 
-#### Conservative Scenario ($10K Tournament Volume)
+#### Conservative Scenario (1,000 Tournament Entries/Month)
 
 | Metric | Value |
 |--------|-------|
-| Monthly tournament fees | $10,000 USDC |
-| Amount to buyback (50%) | $5,000 USDC |
-| 8BIT price | $0.003 |
-| Tokens bought & burned | 1,666,666 8BIT |
-| **% of supply burned** | **0.33%/month** |
-| **Annual burn rate** | **4% of supply** |
+| Tournament entries | 1,000 |
+| Average entry fee | 10,000 8BIT |
+| Total fees collected | 10M 8BIT |
+| **Tokens burned (50%)** | **5M 8BIT** |
+| **% of supply burned** | **1%/month** |
+| **Annual burn rate** | **12% of supply** |
 
-**Effect:** Reduces inflation from 6% to ~2% net
+**Effect:** Net DEFLATIONARY (12% burn vs 6% emissions = -6% supply annually)
 
 ---
 
-#### Moderate Scenario ($50K Tournament Volume)
+#### Moderate Scenario (5,000 Tournament Entries/Month)
 
 | Metric | Value |
 |--------|-------|
-| Monthly tournament fees | $50,000 USDC |
-| Amount to buyback (50%) | $25,000 USDC |
-| 8BIT price | $0.003 |
-| Tokens bought & burned | 8,333,333 8BIT |
-| **% of supply burned** | **1.67%/month** |
-| **Annual burn rate** | **20% of supply** |
+| Tournament entries | 5,000 |
+| Average entry fee | 10,000 8BIT |
+| Total fees collected | 50M 8BIT |
+| **Tokens burned (50%)** | **25M 8BIT** |
+| **% of supply burned** | **5%/month** |
+| **Annual burn rate** | **60% of supply** |
 
-**Effect:** Net DEFLATIONARY (20% burn vs 6% emissions = -14% supply annually)
+**Effect:** HEAVY deflation (60% burn vs 6% emissions = -54% supply annually)
 
 ---
 
-#### Growth Scenario ($200K Tournament Volume)
+#### Growth Scenario (10,000 Tournament Entries/Month)
 
 | Metric | Value |
 |--------|-------|
-| Monthly tournament fees | $200,000 USDC |
-| Amount to buyback (50%) | $100,000 USDC |
-| 8BIT price | $0.003 |
-| Tokens bought & burned | 33,333,333 8BIT |
-| **% of supply burned** | **6.67%/month** |
-| **Annual burn rate** | **80% of supply** |
+| Tournament entries | 10,000 |
+| Average entry fee | 10,000 8BIT |
+| Total fees collected | 100M 8BIT |
+| **Tokens burned (50%)** | **50M 8BIT** |
+| **% of supply burned** | **10%/month** |
+| **Annual burn rate** | **120% of supply** |
 
-**Effect:** HEAVY deflation (80% burn vs 6% emissions = -74% supply annually)
+**Effect:** EXTREME deflation (120% burn vs 6% emissions = -114% supply annually)
 
 ## Deflationary Timeline
 
@@ -94,13 +101,13 @@ Unlike inflationary tokens that constantly increase supply, 8BIT uses a **buybac
 
 **Net Supply Change** = Emissions - Burns
 
-| Tournament Volume | Emissions | Burns | Net Change |
-|-------------------|-----------|-------|------------|
-| $10K/month | +2.5M | -1.67M | **+833K** (mild inflation) |
-| $50K/month | +2.5M | -8.33M | **-5.83M** (deflationary!) |
-| $100K/month | +2.5M | -16.67M | **-14.17M** (heavy deflation) |
+| Tournament Activity | Emissions | Burns | Net Change |
+|---------------------|-----------|-------|------------|
+| 1,000 entries/month | +2.5M | -5M | **-2.5M** (deflationary!) |
+| 5,000 entries/month | +2.5M | -25M | **-22.5M** (heavy deflation) |
+| 10,000 entries/month | +2.5M | -50M | **-47.5M** (extreme deflation) |
 
-**Key Insight:** If tournament volume exceeds ~$15K/month, the token becomes **net deflationary** even during emission period.
+**Key Insight:** Even at low tournament volume (~500 entries/month), the token becomes **net deflationary** during emission period.
 
 ### Year 6+ (Zero Emissions)
 
@@ -113,15 +120,15 @@ Unlike inflationary tokens that constantly increase supply, 8BIT uses a **buybac
 
 ## Price Impact of Burns
 
-### Buyback Creates Buy Pressure
+### Direct Burn Creates Scarcity
 
-Every tournament entry creates **automatic buy orders** on Uniswap V3:
+Unlike buyback models that rely on market conditions, direct burning guarantees supply reduction:
 
 **Example:**
-- 100 players enter $10 tournament
-- $1,000 in fees collected
-- $500 used to buy 8BIT on Uniswap
-- **Constant buy pressure regardless of market sentiment**
+- 1,000 players enter tournaments
+- 10M 8BIT in fees collected
+- 5M 8BIT burned immediately
+- **Constant deflationary pressure regardless of market sentiment**
 
 ### Supply Reduction Increases Scarcity
 
@@ -132,13 +139,12 @@ Every tournament entry creates **automatic buy orders** on Uniswap V3:
 
 **Example Projection:**
 
-| Year | Circulating Supply | Tournament Burns | Net Supply |
-|------|-------------------|------------------|------------|
+| Year | Starting Supply | Tournament Burns | Net Supply |
+|------|----------------|------------------|------------|
 | 0 | 200M | 0 | 200M |
-| 1 | 230M | 20M | 210M (net +10M) |
-| 3 | 290M | 100M | 190M (net -10M) |
-| 5 | 350M | 250M | 100M (net -100M) |
-| 10 | 350M | 500M | **-150M** (can't go negative, asymptotic) |
+| 1 | 230M | 60M | 170M (net -30M) |
+| 3 | 230M | 180M | 50M (net -150M) |
+| 5 | 200M | 300M | **Net circulation heavily reduced** |
 
 *Assumes moderate growth in tournament activity*
 
@@ -185,7 +191,7 @@ Every tournament entry creates **automatic buy orders** on Uniswap V3:
 
 ### 8-Bit Arcade (8BIT)
 
-- **Mechanism:** 50% of tournament fees → buyback & burn
+- **Mechanism:** 50% of tournament fees → direct burn
 - **Advantage:** Burns tied directly to platform usage
 - **Sustainability:** More players = more tournaments = more burns
 
@@ -198,12 +204,12 @@ Every tournament entry creates **automatic buy orders** on Uniswap V3:
    - View all burn transactions
    - Track burn rate over time
 
-2. **[TournamentBuyback Contract](https://arbiscan.io)**
-   - View USDC → 8BIT swap transactions
-   - See buyback amounts
+2. **[TournamentManager Contract](https://sepolia.arbiscan.io/address/0xe06C92f15F426b0f6Fccb66302790E533C5Dfbb7)**
+   - View burn transactions
+   - See entry fee amounts
    - Verify automatic execution
 
-3. **[8-Bit Arcade Dashboard](https://8bitarcade.games/burns)**
+3. **[8-Bit Arcade Dashboard](https://8bitarcade.games/stats)** (Coming Soon)
    - Total tokens burned
    - Monthly burn rate
    - Historical burn chart
@@ -224,37 +230,23 @@ Track these key metrics to understand deflationary impact:
 
 ```
 Year 0:  500M max supply, 200M circulating
-Year 1:  230M circulating (+30M emissions, -10M burns)
-Year 5:  350M circulating (+150M emissions, -50M burns)
-Year 10: 300M circulating (0 emissions, -50M burns)
-Year 20: 200M circulating (0 emissions, -100M burns)
+Year 1:  170M circulating (+30M emissions, -60M burns)
+Year 5:  50M circulating (+150M emissions, -300M burns)
+Year 10: 20M circulating (0 emissions, -30M burns)
+Year 20: 5M circulating (0 emissions, -15M burns)
 ```
 
-**Result:** Returns to launch circulating supply over 20 years
+**Result:** 99% supply reduction over 20 years
 
 ### Moderate Path (Medium Tournament Volume)
 
 ```
 Year 0:  500M max supply, 200M circulating
-Year 1:  210M circulating (+30M emissions, -20M burns)
-Year 5:  250M circulating (+150M emissions, -100M burns)
-Year 10: 150M circulating (0 emissions, -100M burns)
-Year 20: 50M circulating (0 emissions, -100M burns)
+Year 1:  110M circulating (+30M emissions, -120M burns)
+Year 5:  Approaching minimum supply
 ```
 
-**Result:** 90% supply reduction over 20 years
-
-### Optimistic Path (High Tournament Volume)
-
-```
-Year 0:  500M max supply, 200M circulating
-Year 1:  190M circulating (+30M emissions, -40M burns)
-Year 5:  100M circulating (+150M emissions, -250M burns)
-Year 10: 20M circulating (0 emissions, -80M burns)
-Year 20: <5M circulating (0 emissions, -15M burns)
-```
-
-**Result:** 99%+ supply reduction → extreme scarcity
+**Result:** Extreme scarcity within 5 years
 
 ## What This Means for Token Value
 
@@ -262,7 +254,7 @@ Year 20: <5M circulating (0 emissions, -15M burns)
 
 **Demand Drivers (Buying Pressure):**
 - Tournament entry requirements
-- Automatic buybacks from fees
+- Player need to participate
 - Investor speculation
 - Staking requirements (future)
 - NFT minting (future)
@@ -292,17 +284,17 @@ Year 20: <5M circulating (0 emissions, -15M burns)
 - Incentivizes player participation
 - Immediate value to winners
 
-**50% to Buyback & Burn:**
-- Creates constant buy pressure
+**50% to Burn:**
 - Reduces circulating supply
 - Benefits all holders long-term
+- Creates deflationary pressure
 
 **Why not 100% to prizes?**
 - Wouldn't create deflationary pressure
 - Token would be purely inflationary
 - No long-term value accrual
 
-**Why not 100% to buyback?**
+**Why not 100% to burn?**
 - Prizes would be too small
 - Players wouldn't participate
 - Platform wouldn't grow
