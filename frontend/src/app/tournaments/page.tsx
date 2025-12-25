@@ -37,6 +37,23 @@ export default function TournamentsPage() {
   const [needsApproval, setNeedsApproval] = useState(false);
   const [loading, setLoading] = useState(true);
   const [entering, setEntering] = useState(false);
+  const [tournamentCount, setTournamentCount] = useState(3); // Start with 3, will dynamically fetch
+
+  // Get active tournament count from contract
+  const { data: activeTournamentCount } = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getActiveTournamentsCount',
+  });
+
+  // Update tournament count when data is available
+  useEffect(() => {
+    if (activeTournamentCount !== undefined) {
+      const count = Number(activeTournamentCount);
+      console.log('📊 Active tournament count:', count);
+      setTournamentCount(Math.max(count, 3)); // Always check at least 3
+    }
+  }, [activeTournamentCount]);
 
   // Check token allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
@@ -83,63 +100,158 @@ export default function TournamentsPage() {
     }
   }, [enterError]);
 
-  // Fetch tournament data from blockchain
-  const { data: tournament1 } = useReadContract({
+  // Dynamically fetch tournaments based on count
+  // We'll use multiple useReadContract hooks - one for each tournament ID
+  // This is a workaround since hooks can't be called in loops
+  const tournament1 = useReadContract({
     address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(1)],
   });
 
-  const { data: tournament2 } = useReadContract({
+  const tournament2 = useReadContract({
     address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(2)],
   });
 
-  const { data: tournament3 } = useReadContract({
+  const tournament3 = useReadContract({
     address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'getTournament',
     args: [BigInt(3)],
   });
 
-  // Check if user has entered tournaments
-  const { data: hasEntered1 } = useReadContract({
+  const tournament4 = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getTournament',
+    args: [BigInt(4)],
+  });
+
+  const tournament5 = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'getTournament',
+    args: [BigInt(5)],
+  });
+
+  // Check if user has entered (only if wallet connected)
+  const hasEntered1 = useReadContract({
     address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(1), address] : undefined,
   });
 
-  const { data: hasEntered2 } = useReadContract({
+  const hasEntered2 = useReadContract({
     address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
     abi: TOURNAMENT_MANAGER_ABI,
     functionName: 'hasPlayerEntered',
     args: address ? [BigInt(2), address] : undefined,
   });
 
-  const { data: hasEntered3 } = useReadContract({
-  address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
-  abi: TOURNAMENT_MANAGER_ABI,
-  functionName: 'hasPlayerEntered',
-  args: address ? [BigInt(3), address] : undefined,
-});
+  const hasEntered3 = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [BigInt(3), address] : undefined,
+  });
+
+  const hasEntered4 = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [BigInt(4), address] : undefined,
+  });
+
+  const hasEntered5 = useReadContract({
+    address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+    abi: TOURNAMENT_MANAGER_ABI,
+    functionName: 'hasPlayerEntered',
+    args: address ? [BigInt(5), address] : undefined,
+  });
 
   // Convert blockchain data to frontend format
   useEffect(() => {
-    // DEBUG: Log raw tournament data
-    console.log('🎮 Raw tournament data:', {
-      tournament1,
-      tournament2,
-      tournament3,
-      tournament1Type: typeof tournament1,
-      tournament1IsArray: Array.isArray(tournament1),
-      tournament1Length: Array.isArray(tournament1) ? tournament1.length : 'N/A',
-    });
+    // Helper to process tournament data from wagmi v2 format
+    // wagmi v2 returns tuples as objects with both numeric indices AND named properties
+    const processTournament = (tournamentData: any, hasEntered: any, id: number) => {
+      if (!tournamentData || !tournamentData.data) return null;
+
+      const data = tournamentData.data;
+
+      // Access fields by numeric index (wagmi v2 format)
+      const tier = Number(data[0]);
+      const period = Number(data[1]);
+      const startTime = data[2];
+      const endTime = data[3];
+      const entryFee = data[4];
+      const prizePool = data[5];
+      const totalEntries = Number(data[6]);
+      const winner = data[7];
+      const isActive = Boolean(data[8]);
+
+      console.log(`🎮 Tournament ${id} data:`, {
+        tier,
+        period,
+        startTime: Number(startTime),
+        endTime: Number(endTime),
+        entryFee: String(entryFee),
+        isActive,
+      });
+
+      // Only include active tournaments
+      if (!isActive) {
+        console.log(`⏭️ Skipping tournament ${id} - not active`);
+        return null;
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      const status: TournamentStatus =
+        now < Number(startTime) ? 'upcoming' :
+        now >= Number(startTime) && now < Number(endTime) ? 'active' :
+        'ended';
+
+      return {
+        id,
+        tier: tier === 0 ? 'Standard' as Tier : 'High Roller' as Tier,
+        period: period === 0 ? 'Weekly' as Period : 'Monthly' as Period,
+        startTime: new Date(Number(startTime) * 1000),
+        endTime: new Date(Number(endTime) * 1000),
+        entryFee: entryFee as bigint,
+        prizePool: prizePool as bigint,
+        totalEntries,
+        winner: winner as string,
+        isActive,
+        status,
+        hasEntered: hasEntered?.data as boolean || false,
+      };
+    };
 
     const formattedTournaments: Tournament[] = [];
+
+    // Process all tournaments
+    [
+      { data: tournament1, hasEntered: hasEntered1, id: 1 },
+      { data: tournament2, hasEntered: hasEntered2, id: 2 },
+      { data: tournament3, hasEntered: hasEntered3, id: 3 },
+      { data: tournament4, hasEntered: hasEntered4, id: 4 },
+      { data: tournament5, hasEntered: hasEntered5, id: 5 },
+    ].forEach(({ data, hasEntered, id }) => {
+      const tournament = processTournament(data, hasEntered, id);
+      if (tournament) {
+        formattedTournaments.push(tournament);
+      }
+    });
+
+    console.log(`✅ Total formatted tournaments: ${formattedTournaments.length}`);
+    setTournaments(formattedTournaments);
+    setLoading(false);
+  }, [tournament1.data, tournament2.data, tournament3.data, tournament4.data, tournament5.data,
+      hasEntered1.data, hasEntered2.data, hasEntered3.data, hasEntered4.data, hasEntered5.data]);
 
     // Helper to map tier enum to display string
     const getTierName = (tier: number): Tier => {
