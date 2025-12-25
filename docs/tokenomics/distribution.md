@@ -127,7 +127,7 @@ Total Supply: 500,000,000 8BIT (100%)
 - Builds investor confidence
 
 **Liquidity Pairs:**
-- **Primary:** 8BIT/USDC (tournament fees, buybacks)
+- **Primary:** 8BIT/USDC (main trading pair)
 - **Future:** 8BIT/ETH (if successful, broader access)
 
 **Lock Details:**

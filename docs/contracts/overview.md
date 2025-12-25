@@ -29,17 +29,12 @@ All core functionality of 8-Bit Arcade runs on Arbitrum smart contracts. This en
 │   ├── Fixed price: $0.0005
 │   └── Automatic distribution
 │
-├── TournamentManager.sol
-│   ├── Creates and manages tournaments
-│   ├── Collects entry fees
-│   ├── Distributes prizes
-│   └── Enforces rules
-│
-└── TournamentBuyback.sol
-    ├── 50% of fees → buyback 8BIT
-    ├── Swaps USDC for 8BIT via Uniswap
-    ├── Sends to burn address
-    └── Deflationary mechanism
+└── TournamentManager.sol
+    ├── Creates and manages tournaments
+    ├── Collects 8BIT entry fees
+    ├── Burns 50% of fees (deflationary)
+    ├── Distributes prizes from 50% pool
+    └── Enforces tournament rules
 ```
 
 ## Network Details
@@ -210,24 +205,22 @@ function burn(uint256 amount) external {
 }
 ```
 
-**Buyback flow:**
+**Tournament burn flow:**
 ```solidity
-// 1. Receive USDC from tournament fees
-// 2. Swap USDC for 8BIT on Uniswap V3
-ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-    tokenIn: USDC,
-    tokenOut: 8BIT,
-    fee: 3000, // 0.3%
-    recipient: address(this),
-    deadline: block.timestamp,
-    amountIn: usdcAmount,
-    amountOutMinimum: 0,
-    sqrtPriceLimitX96: 0
-});
-uint256 eightBitReceived = swapRouter.exactInputSingle(params);
+// 1. Player pays 8BIT entry fee
+function enterTournament(uint256 tournamentId) external {
+    uint256 fee = getTournamentFee(tournamentId);
 
-// 3. Send to burn address
-8BIT.transfer(BURN_ADDRESS, eightBitReceived);
+    // 2. Transfer 8BIT from player
+    eightBitToken.transferFrom(msg.sender, address(this), fee);
+
+    // 3. Burn 50% of fee
+    uint256 burnAmount = fee / 2;
+    eightBitToken.transfer(BURN_ADDRESS, burnAmount);
+
+    // 4. Add 50% to prize pool
+    tournaments[tournamentId].prizePool += (fee - burnAmount);
+}
 ```
 
 ## Gas Costs
@@ -239,8 +232,7 @@ uint256 eightBitReceived = swapRouter.exactInputSingle(params);
 | **Submit Score** | ~100,000 gas | ~$0.10 |
 | **Enter Tournament** | ~150,000 gas | ~$0.15 |
 | **Claim Rewards** | N/A (automatic) | $0 (platform pays) |
-| **Swap on Uniswap** | ~120,000 gas | ~$0.12 |
-| **Approve Token** | ~50,000 gas | ~$0.05 |
+| **Approve 8BIT** | ~50,000 gas | ~$0.05 |
 
 **Why so cheap:**
 - Arbitrum L2 scalability
@@ -250,13 +242,12 @@ uint256 eightBitReceived = swapRouter.exactInputSingle(params);
 **Platform covers:**
 - Daily reward distributions
 - Tournament prize payouts
-- Buyback executions
+- Automated burns
 
 **Players pay:**
-- Score submissions
+- Score submissions (planned)
 - Tournament entries
-- Token swaps
-- Approvals
+- 8BIT token approvals
 
 ## Transparency & Verification
 

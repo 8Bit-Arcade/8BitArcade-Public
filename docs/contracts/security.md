@@ -212,9 +212,9 @@ Security is the foundation of 8-Bit Arcade. This page outlines all security meas
 
 **Our Protection:**
 - ✅ No price oracles in core contracts
-- ✅ Uniswap TWAP for buybacks (resistant to manipulation)
-- ✅ Fixed tournament entry prices (in USDC)
+- ✅ Fixed tournament entry prices (in 8BIT tokens)
 - ✅ No flash-loan-dependent logic
+- ✅ Direct burn mechanism (no market dependency)
 
 ---
 
