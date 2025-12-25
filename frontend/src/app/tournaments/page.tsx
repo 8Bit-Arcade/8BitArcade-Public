@@ -103,6 +103,20 @@ export default function TournamentsPage() {
     }
   }, [isApproveSuccess, approveHash, refetchAllowance]);
 
+  // DEBUG: Track all transaction states
+  useEffect(() => {
+    console.log('📊 TRANSACTION STATE UPDATE:', {
+      approveHash,
+      enterHash,
+      approveError: approveError?.message,
+      enterError: enterError?.message,
+      isApproveSuccess,
+      isEnterSuccess,
+      needsApproval,
+      entering,
+    });
+  }, [approveHash, enterHash, approveError, enterError, isApproveSuccess, isEnterSuccess, needsApproval, entering]);
+
   // DEBUG: Track approve errors
   useEffect(() => {
     if (approveError) {
@@ -225,62 +239,78 @@ export default function TournamentsPage() {
     }
   }, [isEnterSuccess, enterHash]);
 
-  const handleEnterTournament = async (tournamentId: number, entryFee: bigint) => {
-    if (!address) {
+  const handleEnterTournament = (tournamentId: number, entryFee: bigint) => {
+    console.log('🚀 handleEnterTournament CALLED:', {
+      tournamentId,
+      entryFee: formatEther(entryFee),
+      address,
+      isConnected,
+    });
+
+    if (!address || !isConnected) {
+      console.log('❌ No wallet connected');
       alert('Please connect your wallet');
       return;
     }
 
-    console.log('🎮 Entering tournament:', tournamentId);
-    console.log('💰 Entry fee:', formatEther(entryFee), '8BIT');
-    console.log('✅ Current allowance:', allowance ? formatEther(allowance as bigint) : '0');
+    console.log('📊 Current state:', {
+      allowance: allowance ? formatEther(allowance as bigint) : 'undefined',
+      selectedTournament,
+      entering,
+      needsApproval,
+    });
 
     setSelectedTournament(tournamentId);
     setEntering(true);
+    setNeedsApproval(false);
 
-    try {
-      // Check if approval is needed
-      const currentAllowance = (allowance as bigint) || BigInt(0);
-      if (currentAllowance < entryFee) {
-        console.log('⚠️ Insufficient allowance, requesting approval for:', formatEther(entryFee));
-        setNeedsApproval(true);
+    // Check if approval is needed
+    const currentAllowance = (allowance as bigint) || BigInt(0);
+    console.log('🔍 Allowance check:', {
+      current: formatEther(currentAllowance),
+      required: formatEther(entryFee),
+      needsApproval: currentAllowance < entryFee,
+    });
 
-        // Approve tournament manager to spend entry fee
-        const approvalAmount = entryFee * BigInt(10); // Approve 10x for future entries
-        console.log('📝 Requesting approval for:', formatEther(approvalAmount), '8BIT');
-        console.log('💳 Approve call details:', {
-          tokenAddress: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
-          spenderAddress: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
-          amount: approvalAmount.toString(),
-        });
+    if (currentAllowance < entryFee) {
+      console.log('🔑 Need approval - calling approve()');
+      setNeedsApproval(true);
 
-        approve({
-          address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN as `0x${string}`,
-          abi: EIGHT_BIT_TOKEN_ABI,
-          functionName: 'approve',
-          args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`, approvalAmount],
-        });
-
-        console.log('✅ Approve function executed, wallet should prompt for signature...');
-
-        // Entry will happen after approval is confirmed
-        return;
-      }
-
-      console.log('✅ Sufficient allowance, entering tournament directly');
-
-      // Enter tournament
-      enterTournament({
-        address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
-        abi: TOURNAMENT_MANAGER_ABI,
-        functionName: 'enterTournament',
-        args: [BigInt(tournamentId)],
+      const approvalAmount = entryFee * BigInt(10);
+      console.log('💳 Approve call:', {
+        tokenAddress: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN,
+        spenderAddress: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+        amount: formatEther(approvalAmount),
+        amountRaw: approvalAmount.toString(),
       });
-    } catch (error) {
-      console.error('❌ Error entering tournament:', error);
-      setEntering(false);
-      alert('Failed to enter tournament. Please try again.');
+
+      approve({
+        address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN as `0x${string}`,
+        abi: EIGHT_BIT_TOKEN_ABI,
+        functionName: 'approve',
+        args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`, approvalAmount],
+      });
+
+      console.log('✅ approve() function called - waiting for wallet popup...');
+      return;
     }
+
+    // Direct entry if already approved
+    console.log('🎮 Calling enterTournament directly (already approved)');
+    console.log('💳 enterTournament call:', {
+      contractAddress: TESTNET_CONTRACTS.TOURNAMENT_MANAGER,
+      tournamentId,
+      abiHasFunction: TOURNAMENT_MANAGER_ABI.some((item: any) => item.name === 'enterTournament'),
+    });
+
+    enterTournament({
+      address: TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`,
+      abi: TOURNAMENT_MANAGER_ABI,
+      functionName: 'enterTournament',
+      args: [BigInt(tournamentId)],
+    });
+
+    console.log('📤 enterTournament() function called - waiting for wallet popup...');
   };
 
   // When approval succeeds, automatically enter tournament
@@ -473,7 +503,18 @@ export default function TournamentsPage() {
                           <Button
                             variant="primary"
                             size="sm"
-                            onClick={() => handleEnterTournament(tournament.id, tournament.entryFee)}
+                            onClick={() => {
+                              console.log('🔥 BUTTON CLICKED!', {
+                                tournamentId: tournament.id,
+                                entryFee: formatEther(tournament.entryFee),
+                                wallet: { address, isConnected },
+                                buttonDisabled:
+                                  entering ||
+                                  tournament.hasEntered ||
+                                  (selectedTournament === tournament.id && (!!approveHash || !!enterHash)),
+                              });
+                              handleEnterTournament(tournament.id, tournament.entryFee);
+                            }}
                             disabled={
                               entering ||
                               tournament.hasEntered ||
