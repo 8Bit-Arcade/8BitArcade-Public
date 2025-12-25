@@ -232,14 +232,38 @@ export const submitScore = onCall<SubmitScoreRequest, Promise<SubmitScoreRespons
     }
 
     // Update user stats
-    await collections.users.doc(playerAddress).set(
-      {
-        totalGamesPlayed: FieldValue.increment(1),
-        totalScore: FieldValue.increment(newBest ? verifiedScore - currentBest : 0),
+    // First, ensure user document exists with complete schema
+    const userRef = collections.users.doc(playerAddress);
+    const userDocCheck = await userRef.get();
+
+    if (!userDocCheck.exists) {
+      // Create complete user document if it doesn't exist
+      console.log('Creating user document during score submission for:', playerAddress);
+      await userRef.set({
+        address: playerAddress,
+        username: null,
+        createdAt: now,
         lastActive: now,
-      },
-      { merge: true }
-    );
+        totalGamesPlayed: 0,
+        totalScore: 0,
+        isBanned: false,
+        banReason: null,
+        bannedAt: null,
+        displayPreference: 'address',
+        flags: {
+          count: 0,
+          lastFlagged: null,
+          reasons: [],
+        },
+      });
+    }
+
+    // Now update the stats
+    await userRef.update({
+      totalGamesPlayed: FieldValue.increment(1),
+      totalScore: FieldValue.increment(newBest ? verifiedScore - currentBest : 0),
+      lastActive: now,
+    });
 
     return {
       success: true,
