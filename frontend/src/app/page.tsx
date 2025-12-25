@@ -206,7 +206,24 @@ export default function HomePage() {
       }
     };
 
+    // Initial fetch
     fetchLeaderboards();
+
+    // Refresh leaderboards every 30 seconds to show new scores
+    const interval = setInterval(fetchLeaderboards, 30000);
+
+    // Refetch when page becomes visible (user returns to tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchLeaderboards();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Handle game selection from grid (maps to full GAMES array index)

@@ -333,21 +333,6 @@ export default function TournamentsPage() {
       : 'text-gray-400';
   };
 
-  const handleApprove = async (tournament: Tournament) => {
-    if (!isConnected) return;
-
-    console.log(`🔑 Approving 8BIT tokens for tournament ${tournament.id}`);
-    console.log(`💰 Entry fee: ${formatEther(tournament.entryFee)} 8BIT`);
-
-    const approvalAmount = tournament.entryFee * BigInt(10);
-
-    approve({
-      address: TESTNET_CONTRACTS.EIGHT_BIT_TOKEN as `0x${string}`,
-      abi: EIGHT_BIT_TOKEN_ABI,
-      functionName: 'approve',
-      args: [TESTNET_CONTRACTS.TOURNAMENT_MANAGER as `0x${string}`, approvalAmount],
-    });
-  };
 
   return (
     <div className="min-h-screen py-8">
@@ -466,31 +451,24 @@ export default function TournamentsPage() {
                           {formatTimeRemaining(tournament.endTime)}
                         </p>
                         {isConnected ? (
-                          <>
-                            {needsApproval && selectedTournament === tournament.id ? (
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleApprove(tournament)}
-                                disabled={!!approveHash}
-                              >
-                                {approveHash ? 'Approving...' : 'Approve 8BIT'}
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                onClick={() => handleEnterTournament(tournament.id, tournament.entryFee)}
-                                disabled={entering || tournament.hasEntered}
-                              >
-                                {entering && selectedTournament === tournament.id
-                                  ? 'Entering...'
-                                  : tournament.hasEntered
-                                  ? 'Entered'
-                                  : 'Enter Now'}
-                              </Button>
-                            )}
-                          </>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleEnterTournament(tournament.id, tournament.entryFee)}
+                            disabled={
+                              entering ||
+                              tournament.hasEntered ||
+                              (selectedTournament === tournament.id && (!!approveHash || !!enterHash))
+                            }
+                          >
+                            {selectedTournament === tournament.id && approveHash && !enterHash
+                              ? 'Approving...'
+                              : selectedTournament === tournament.id && enterHash
+                              ? 'Entering...'
+                              : tournament.hasEntered
+                              ? 'Entered'
+                              : 'Enter Now'}
+                          </Button>
                         ) : (
                           <Button variant="secondary" size="sm" disabled>
                             Connect Wallet
