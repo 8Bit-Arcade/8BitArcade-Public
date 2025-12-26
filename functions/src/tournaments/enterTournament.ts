@@ -33,19 +33,19 @@ export const enterTournament = onCall<EnterTournamentRequest>(async (request) =>
 
     const tournament = tournamentDoc.data() as TournamentDocument;
 
-    // Verify tournament is in correct state
+    // Verify tournament is active or upcoming
     if (tournament.status !== 'active' && tournament.status !== 'upcoming') {
       throw new HttpsError('failed-precondition', 'Tournament is not accepting entries');
     }
 
     const now = Timestamp.now();
 
-    // Check if tournament has started (if active, must be before end time)
+    // Make sure tournament has not ended
     if (tournament.status === 'active' && tournament.endTime.toMillis() < now.toMillis()) {
       throw new HttpsError('failed-precondition', 'Tournament has ended');
     }
 
-    // Check if player already entered
+    // Check for existing entry
     const entryRef = tournamentRef.collection('entries').doc(playerAddress);
     const existingEntry = await entryRef.get();
 
@@ -53,10 +53,9 @@ export const enterTournament = onCall<EnterTournamentRequest>(async (request) =>
       throw new HttpsError('already-exists', 'Already entered this tournament');
     }
 
-    // TODO: Verify transaction on-chain (check txHash is valid and amount matches)
-    // For now, we trust the frontend verification
+    // TODO: Verify transaction on-chain (optional)
 
-    // Create tournament entry
+    // Construct entry
     const entry: TournamentEntryDocument = {
       tournamentId,
       player: playerAddress,
@@ -68,22 +67,38 @@ export const enterTournament = onCall<EnterTournamentRequest>(async (request) =>
       txHash,
     };
 
-    // Use batch write to ensure atomicity
+    // Batch write to keep atomic
     const batch = db.batch();
 
-    // Create entry document
+    // 1️⃣ Create entry in entries subcollection
     batch.set(entryRef, entry);
 
-    // Add player to tournament participants array
+    // 2️⃣ Add participant to parent doc
     batch.update(tournamentRef, {
       participants: FieldValue.arrayUnion(playerAddress),
+      totalEntries: FieldValue.increment(1),
+      updatedAt: now,
     });
+
+    // 3️⃣ Initialize leaderboard record for this player
+    const leaderboardRef = tournamentRef.collection('leaderboard').doc(playerAddress);
+    batch.set(
+      leaderboardRef,
+      {
+        address: playerAddress,
+        score: 0,
+        joinedAt: now,
+        hasPaid: true,
+        lastUpdated: now,
+      },
+      { merge: true }
+    );
 
     await batch.commit();
 
     return {
       success: true,
-      message: 'Successfully entered tournament',
+      message: 'Successfully entered tournament and added to leaderboard',
       entry,
     };
   } catch (error) {
