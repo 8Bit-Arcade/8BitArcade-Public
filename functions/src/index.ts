@@ -25,6 +25,7 @@ export { getTournamentLeaderboard } from './tournaments/getTournamentLeaderboard
 export { enterTournament } from './tournaments/enterTournament';
 export { createTournament } from './tournaments/createTournament';
 export { finalizeTournament } from './tournaments/finalizeTournament';
+export { initializeTournamentIfMissing } from './tournaments/initializeTournamentIfMissing';
 
 // Re-export types for use in frontend
 export type { GameInput, GameData, ValidationResult } from './types';
