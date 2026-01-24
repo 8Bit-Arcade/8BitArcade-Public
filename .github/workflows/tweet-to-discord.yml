@@ -1,1 +1,28 @@
+name: Tweet to Discord
 
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Tweets
+        run: |
+          curl -s https://nitter.net/8_Bit_Arcade_/rss > tweets.xml
+
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          TWEET=$(grep -oP '(?<=<title>).*?(?=</title>)' tweets.xml | sed -n '2p')
+          LINK=$(grep -oP '(?<=<link>).*?(?=</link>)' tweets.xml | sed -n '2p')
+
+          if [ -n "$TWEET" ]; then
+            curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"🐦 **New Tweet**\\n$TWEET\\n$LINK\"}" \
+            $DISCORD_WEBHOOK
+          fi
